@@ -1,121 +1,110 @@
 # Nexo Assist — Desafio técnico Beyond the Bytes
 
-**Versão:** 1.4.0 • **Idioma:** pt-BR • **Stack:** Node.js 22.18+, TypeScript estrito, SQLite, HTML/CSS/JS • **Agente:** Mastra opcional.
+Service desk em português com chat de triagem, chamados simulados, confirmação explícita, transferência humana, console do analista e auditoria persistente.
 
-Aplicação de service desk com login de funcionários demonstrativos, chat de triagem, consulta de chamados e central de ajuda, rascunhos confirmáveis, regras de prioridade/SLA, transferência para analista, console humano, auditoria rastreável e conversas persistidas.
+**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM usa agora a API direta da Mistral AI, com `mistral/mistral-small-latest`. A configuração está preparada; falta cadastrar `MISTRAL_API_KEY` em Production para executar a inferência real. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
 
-> **Escopo de validação:** todos os testes automatizados locais (46 de 46) e os 9 fluxos de Chromium passaram. O navegador usou um *bridge* HTTP porque este ambiente bloqueia navegação localhost; não equivale a validar TLS/cookies do navegador. O Mastra com provedor LLM real, pixel-perfect do Pencil e URL público de produção ainda não foram validados. Não declarar 10/10 sem essas evidências.
+**Produção:** https://nexo-assist-self.vercel.app/
 
-## Inicialização rápida (modo de demonstração)
-
-Com Node.js 22.18+ e o pacote descompactado:
-
-```bash
-npm start
-```
-
-Abra `http://localhost:3000`. O `dist/` compilado está incluído no ZIP, portanto o modo determinístico funciona sem baixar pacotes. O SQLite é criado automaticamente em `./data/nexo.sqlite` e populado com 5 usuários, 8 artigos e chamados demonstrativos.
-
-| Perfil | E-mail | Senha de demonstração |
-|---|---|---|
-| Funcionária | `ana.souza@nexo.com.br` | `demo123` |
-| Funcionário | `bruno.tavares@nexo.com.br` | `demo123` |
-| Funcionária | `carla.mendes@nexo.com.br` | `demo123` |
-| Funcionário | `diego.ramos@nexo.com.br` | `demo123` |
-| Analista N2 | `rafael.lima@nexo.com.br` | `demo123` |
-
-**Importante:** a senha não é validada contra uma conta corporativa. Isto é deliberado conforme PRD, **somente para demonstração**. Em `NODE_ENV=production`, o login demo é bloqueado salvo ativação explícita de `APP_DEMO_LOGIN=true`. Não use contas reais nem dados sensíveis.
-
-## Scripts de teste
-
-```bash
-npm install                     # necessário para editar/compilar TypeScript
-npm run build
-npm run typecheck
-npm test                        # 46 testes Node
-npm run test:e2e                # 9 verificações Chromium + screenshots
-```
-
-O teste de navegador requer Python 3 com `playwright` e Chromium disponível. Ele pode executar com `CHROMIUM_PATH=/usr/bin/chromium`; alternativamente, instale o navegador Playwright com `python -m playwright install chromium`. Em ambientes que bloqueiam localhost, a suíte monta os arquivos frontend no Chromium e encaminha suas chamadas fetch ao servidor real com Python; o método e os limites estão descritos em `tests/browser_e2e.py`.
-
-As evidências estão em `artifacts/browser-report.json` e `artifacts/screenshots/` e o levantamento da geometria original em `artifacts/pencil-geometry.json`.
-
-## Componentes e responsabilidades
-
-- `src/server.ts`: API HTTP, sessão assinada, cookies HttpOnly, autorização, CSP, limite de requisições, validação de origem.
-- `src/agent.ts`: interpretação, consulta de ferramentas, regras de segurança, histórico e handoff; controla a máquina de estados.
-- `src/mastra.ts`: agentes Mastra com ferramentas reais **somente de leitura**, vinculadas à identidade autenticada.
-- `src/audit.ts`: registros `agent_runs` e `agent_audit_events`, identificador `traceId`, entradas/saídas redigidas, regras e justificativas.
-- `src/db.ts`: serviço simulado de chamados separado do agente, SQL parametrizado, SQLite persistente, transações, controle de concorrência e confirmação idempotente.
-- `src/policy.ts`: regras do Anexo A: INC/REQ, categoria, prioridade e SLA, detecção de duplicidade e reabertura.
-- `public/`: as seis telas/estados previstos na referência Pencil + layout responsivo.
-- `tests/`: regras, integração, auditoria Mastra simulada, segurança, persistência, HTTP de produção, UI Chromium.
-
-Todas as mutações permanentes passam por `POST /api/drafts/:id/confirm`, com versão, chave de idempotência e validação de propriedade. O modelo não tem acesso a mutações de chamados. O estado de cada conversa é `AGENT_ACTIVE → WAITING_ANALYST → ANALYST_ACTIVE → AGENT_ACTIVE/CLOSED`. Enquanto está em atendimento humano, o agente permanece pausado.
-
-## Mastra com provedor real (ainda não validado neste ambiente)
-
-Em uma máquina com acesso ao npm e credenciais de provedor, crie `.env` a partir de `.env.example`, sem incluí-lo no Git:
-
-```env
-USE_MASTRA=true
-OPENAI_API_KEY=configure-fora-do-repositorio
-MASTRA_MODEL=openai/gpt-4.1-mini
-APP_SESSION_SECRET=gere-uma-chave-aleatoria-com-pelo-menos-32-caracteres
-```
+## Executar localmente
 
 ```bash
 npm install
+cp .env.example .env
+# Configure DATABASE_URL para um banco PostgreSQL de desenvolvimento.
+# Aplique migrations/001_postgres.sql nesse banco, conforme migrations/README.md.
 npm run build
-npm run smoke:mastra
 npm run start:env
 ```
 
-`smoke:mastra` deve executar uma chamada real e falhar se ferramentas não forem invocadas. Testes que imitam a API do Mastra **não** comprovam o runtime real.
+O esquema privado `nexo` deve existir antes de iniciar. A aplicação semeia cinco funcionários/perfis e oito artigos; chamados de exemplo são opcionais com `SEED_DEMO_TICKETS=true`. Não aponte testes para o banco de produção. Os testes usam dados próprios e devem executar em banco isolado.
 
-A API `GET /api/conversations/:id/audit` expõe somente ao funcionário proprietário ou ao analista autorizado os eventos correlacionados de suas conversas. Os registros escondem segredos e preservam identificadores de recursos e tempos das ferramentas.
+Em ambiente não produtivo, sem `APP_AUTH_USERS_JSON`, os usuários de exemplo aceitam qualquer senha não vazia. Em produção, a configuração de autenticação é obrigatória: `APP_DEMO_LOGIN` não substitui `APP_AUTH_USERS_JSON` no servidor PostgreSQL atual.
 
-## Fluxos rápidos de aceitação
+| Perfil | E-mail |
+|---|---|
+| Funcionária | `ana.souza@nexo.com.br` |
+| Funcionário | `bruno.tavares@nexo.com.br` |
+| Funcionária | `carla.mendes@nexo.com.br` |
+| Funcionário | `diego.ramos@nexo.com.br` |
+| Analista N2 | `rafael.lima@nexo.com.br` |
 
-1. Ana pergunta `Qual o status dos meus chamados?`; o agente retorna cards filtrados por identidade.
-2. Ana pergunta `Qual o status do chamado INC-20311?`; o SLA vencido provoca handoff. O agente pausa.
-3. Ana envia `Minha impressora está travando, só eu, tenho alternativa de usar outra impressora`; surge um rascunho **sem criar chamado**. Clique em Confirmar para a mutação efetiva.
-4. Ana pede `Quero falar com um analista`; Rafael assume no console, responde, devolve ou encerra.
-5. Expanda `Ver decisões do agente` / `Ver trilha detalhada` para acessar eventos ordenados do agente e suas ferramentas.
-6. Reinicie o servidor e verifique que conversas, mensagens, chamados e estados foram preservados.
+Produção utiliza credenciais próprias para Ana e Rafael, armazenadas como hashes scrypt. As senhas são entregues fora do repositório; `demo123` não é a senha produtiva. Os demais perfis do seed não possuem acesso produtivo sem inclusão explícita na configuração.
 
-## Deploy recomendado: Render + disco persistente
+## Verificação
 
-`render.yaml` e `Dockerfile` estão preparados para um serviço web Node de longa duração, com `/data/nexo.sqlite` em **disco persistente**. Este é um **blueprint**, não um deploy realizado. O SQLite local não deve ser hospedado em Vercel Functions sem migração para banco externo (o armazenamento efêmero violaria a persistência exigida).
+```bash
+npm run typecheck
+npm run build
+npm test
+npm run smoke:postgres
+```
 
-1. Envie este projeto a um repositório Git sob seu controle, omitindo `.env` e arquivos SQLite.
-2. Conecte o repositório ao serviço Render e crie um Blueprint baseado em `render.yaml` (plano com disco persistente).
-3. Configure a variável secreta `APP_SESSION_SECRET` e, para testes demonstrativos públicos, `APP_DEMO_LOGIN=true`; proteja o acesso/limite requisições e não use dados reais.
-4. Depois do deploy, abra `https://SEU-DOMINIO/api/health`, realize login, crie/recupere uma conversa, reinicie a instância e confirme que a persistência funciona.
-5. Para usar Mastra no deploy, configure `OPENAI_API_KEY`, `MASTRA_MODEL` e `USE_MASTRA=true` nas variáveis privadas do provedor. Execute o smoke test com a credencial no ambiente de homologação.
+`npm test` exige `DATABASE_URL` e o esquema de teste criado. O workflow `.github/workflows/postgres-migration.yml` provisiona PostgreSQL 16 isolado, aplica a migração e executa testes de domínio, persistência, HTTP e conexão. `.github/workflows/ci.yml` verifica build, tipos e regras de negócio. A suíte atual inclui `tests/annex-a.acceptance.test.mjs`, cobrindo todos os itens do Anexo A em PostgreSQL real. Testes de navegador legados não comprovam o deploy atual.
 
-**Sem conexão com a hospedagem e provisionamento de disco não há URL público neste pacote.** Não se recomenda publicar o backend SQLite em um runtime serverless sem persistência.
+A validação real de produção está documentada em [docs/VALIDACAO_PRODUCAO_2026-10-28.md](docs/VALIDACAO_PRODUCAO_2026-10-28.md), com a relação de verificações e limites da evidência. O resultado de um smoke HTTP não equivale a validar visualmente todas as telas, responsividade ou a integração com um LLM real.
 
-## Regras adotadas e trade-offs
+## Deploy na Vercel
 
-- Prioridade crítica: 1h corrida; alta 4h úteis; média 3 dias úteis; baixa 5 dias úteis.
-- Horário útil adotado: seg–sex 08:00–18:00, America/Sao_Paulo, **sem feriados**. É uma interpretação documentada do PRD.
-- O limite de 30 mensagens conta as mensagens do funcionário com o agente, não mensagens de analistas.
-- Chamados resolvidos até sete dias podem ser reabertos após confirmação. Duplicidade é uma heurística baseada em assunto + categoria e validada novamente na transação; **não** é uma busca semântica perfeita.
-- A classificação de confiança é uma heurística/autodeclaração de modelo, não uma probabilidade calibrada.
-- `conversation_processing` rejeita solicitações simultâneas e possui TTL de recuperação de 90s. Adequado a protótipo com um SQLite em volume compartilhado; não equivale a um sistema distribuído com orquestração de workers.
-- O modelo utiliza ferramentas somente de leitura. Dados de outro funcionário nunca devem ser enviados ao modelo.
-- Requisitos de produção fora do MVP: autenticação corporativa, gestão de segredos, política de retenção da auditoria, testes ofensivos, telemetria e banco gerenciado distribuído.
+O projeto usa o framework Node com detecção de `src/server.ts`, exportação padrão do handler e `api/index.js` como entrada auxiliar. O roteamento nativo preserva os caminhos `/api/*`; não reescreva todos eles para `/api/index.js`, pois isso faz login e health chegarem à autenticação como rota desconhecida.
 
-## Documentação e auditoria
+Configure no ambiente Production:
 
-- `docs/AGENT_SPEC.md`: spec de desenvolvimento do agente.
-- `docs/VALIDACAO_FASES_1_2.md`: integração Mastra e auditoria.
-- `docs/VALIDACAO_FASES_3_4_5.md`: auditoria detalhada do PRD, evidências e limitações.
-- `docs/nexo.pen`: referência Pencil v2.21 original.
-- `artifacts/pencil-geometry.json`: tokens e dimensões dos seis frames.
-- `.github/workflows/ci.yml`: CI de compilação, testes e capturas Chromium.
+- `DATABASE_URL`: conexão PostgreSQL externa.
+- `PGSSL_CA_PEM` e `PGSSLMODE`: TLS com verificação de certificado; não desabilitar TLS em produção.
+- `APP_SESSION_SECRET`: segredo aleatório com pelo menos 32 caracteres.
+- `APP_AUTH_USERS_JSON`: objeto `{ "email": "scrypt:SALT_HEX:HASH_HEX" }`; salt de 16 bytes decodificado de hex, derivação de 64 bytes com N=16384, r=8, p=1.
+- `NODE_ENV=production`; `SEED_DEMO_TICKETS=true` apenas para dados demonstrativos.
+- `USE_MASTRA=true`, `MASTRA_PROVIDER=mistral`, `MASTRA_MODEL=mistral/mistral-small-latest` e `MISTRAL_API_KEY` como segredo para Mastra real direto. Até cadastrar a chave Mistral, o deploy conserva `USE_MASTRA=false`; esse modo não atende ao requisito de LLM.
 
-### Conclusão
+Após qualquer mudança nas variáveis, crie um novo deploy. Não publique segredos no código, logs ou relatório. O domínio público canônico acima difere dos aliases de preview protegidos por Vercel Authentication.
 
-**Implementado e validado localmente:** regras, fluxos, segurança funcional, auditoria, console e testes. **Ainda pendente para alegar 10/10:** execução real do Mastra com LLM, renderização e comparação pixel-perfect nativa do Pencil e publicação + smoke real em hospedagem persistente.
+## Componentes e regras
+
+- `src/server.ts`: API HTTP, sessões assinadas, cookies HttpOnly/Secure, autorização, validação de origem e limites de requisições.
+- `src/agent.ts`: triagem, ferramentas e máquina de estados; o agente pausa durante atendimento humano.
+- `src/postgres-db.ts`: serviço simulado de chamados, transações, confirmação idempotente e propriedade de recursos.
+- `src/postgres.ts`: pool TLS e `SET LOCAL search_path` por transação, compatível com o pooler transacional.
+- `src/postgres-audit.ts`: execuções e eventos ordenados, vinculados à identidade e conversa.
+- `src/policy.ts`: tipo, categoria, prioridade, SLA, duplicidade e reabertura.
+- `src/mastra.ts`: ferramentas de leitura associadas ao usuário autenticado; a integração real permanece uma validação separada.
+- `public/`: login, chat, rascunhos, auditoria, perfil e console humano.
+
+Mutações de chamados exigem `POST /api/drafts/:id/confirm`, versão e chave de idempotência. Estados: `AGENT_ACTIVE → WAITING_ANALYST → ANALYST_ACTIVE → AGENT_ACTIVE/CLOSED`.
+
+O limite é de 30 mensagens do funcionário por sessão ativa com o agente. Prioridades: crítica 1h corrida; alta 4h úteis; média 3 dias úteis; baixa 5 dias úteis. Horário útil: seg–sex, 08h–18h, America/Sao_Paulo, sem feriados. Reabertura: até sete dias após resolução, com confirmação. Duplicidade e confiança são heurísticas, não garantias semânticas ou probabilidades calibradas.
+
+## Documentação e limites
+
+- `docs/AGENT_SPEC.md`: especificação do agente.
+- `docs/VALIDACAO_FASES_1_2.md` e `docs/VALIDACAO_FASES_3_4_5.md`: evidências históricas, anteriores ao deploy PostgreSQL.
+- `docs/nexo.pen`: referência visual original.
+- `migrations/README.md` e `docs/postgres-testing.md`: migração e testes.
+
+O modo determinístico não comprova a execução real do Mastra com provedor LLM. A comparação pixel-perfect nativa com Pencil e a revisão visual completa desktop/mobile permanecem separadas. Autenticação corporativa/SSO, retenção de auditoria e operação em escala ficam fora deste protótipo.
+
+## Mastra + LLM: Mistral AI direta
+
+O caminho atual usa o roteador nativo do Mastra `1.79.0`, com `MASTRA_PROVIDER=mistral`, `MASTRA_MODEL=mistral/mistral-small-latest` e `MISTRAL_API_KEY` como segredo. O endpoint é `https://api.mistral.ai/v1`. A credencial NVIDIA não autentica a API Mistral. Não há AI Gateway ou OIDC para inferência.
+
+A auditoria mantém modelo, provedor, ferramentas, uso retornado, duração e decisão. Valores de credenciais são removidos. Há limite de quatro passos, 500 tokens de saída por chamada de modelo e 45 segundos por generate. As mutações continuam somente após confirmação do funcionário.
+
+### Ativar no deploy
+
+Na Vercel, projeto nexo-assist, Settings → Environment Variables, cadastrar **MISTRAL_API_KEY** como **Sensitive/Secret**, ambiente **Production**, usando uma chave do Mistral Studio. Depois ativar USE_MASTRA=true e fazer novo deploy. Nunca colocar a chave no código ou em mensagens de chat. Provedor e modelo ficam preparados. Disponibilidade, quota e cobrança dependem da conta Mistral.
+
+```bash
+# Local: configurar banco isolado e MISTRAL_API_KEY em .env
+npm ci
+npm run build
+npm run smoke:mastra
+
+# Produção: senhas dos perfis devem estar no ambiente
+python scripts/production-acceptance.py
+```
+
+O teste HTTPS exige Mastra real por padrão, rejeita o modo determinístico e verifica eventos do modelo, ferramentas e uso persistido. NEXO_SMOKE_ONLY=true reduz a execução. NEXO_REQUIRE_MASTRA=false testa somente a demonstração. A execução completa altera fixtures de atualização/reabertura e escreve conversas sintéticas.
+
+A configuração antiga MASTRA_PROVIDER=gateway é rejeitada. Modelos de outro provedor são rejeitados para evitar rotas incompatíveis. As configurações explícitas NVIDIA e OpenAI permanecem opcionais; o padrão agora é Mistral AI.
+
+**Estado:** implementação e configuração Mistral preparadas; MISTRAL_API_KEY ausente em Production no momento da migração. Inferência real pendente. Evidências históricas NVIDIA permanecem em docs/PROVEDOR_NVIDIA.md e artifacts/nvidia-activation-attempts-2026-10-28.json. A migração atual está em docs/PROVEDOR_MISTRAL.md.

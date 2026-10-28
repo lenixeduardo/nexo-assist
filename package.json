@@ -12,18 +12,23 @@
     "start": "node --disable-warning=ExperimentalWarning dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/policy.test.mjs tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs tests/annex-a.acceptance.test.mjs tests/initialization.test.mjs tests/mastra-provider.test.mjs tests/audit-redaction.test.mjs",
     "seed": "node --disable-warning=ExperimentalWarning dist/seed.js",
     "start:env": "node --env-file=.env --disable-warning=ExperimentalWarning dist/server.js",
     "smoke:mastra": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/mastra-live-smoke.mjs",
-    "test:e2e": "python tests/browser_e2e.py"
+    "test:e2e": "python tests/browser_e2e.py",
+    "smoke:postgres": "node scripts/postgres-smoke.mjs",
+    "test:legacy": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
+    "test:postgres": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "@types/node": "^22.15.0"
+    "@types/node": "^22.15.0",
+    "@types/pg": "^8.15.5",
+    "typescript": "^5.8.3"
   },
-  "optionalDependencies": {
-    "@mastra/core": "^1.0.0",
-    "zod": "^4.0.0"
+  "dependencies": {
+    "@mastra/core": "1.79.0",
+    "pg": "^8.16.3",
+    "zod": "4.6.7"
   }
 }

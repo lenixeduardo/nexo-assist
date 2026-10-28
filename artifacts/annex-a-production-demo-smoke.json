@@ -1,0 +1,87 @@
+{
+  "requiresMastra": false,
+  "startedAt": "2026-10-28T12:07:57.478815+00:00",
+  "url": "https://nexo-assist-self.vercel.app",
+  "checks": [
+    {
+      "name": "employee and analyst authenticated",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "demo fixtures available",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "real other-owner ticket denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "demonstration response without runtime failure",
+      "passed": true,
+      "detail": {
+        "intent": "TICKET_STATUS",
+        "extractedFacts": {
+          "messageSummary": "Qual o status dos meus chamados?",
+          "agentMode": "deterministic-fallback"
+        },
+        "missingFields": [],
+        "actions": [
+          {
+            "name": "listMyTickets",
+            "outcome": "OK",
+            "durationMs": 1032
+          }
+        ],
+        "policyRules": [
+          "OWNERSHIP"
+        ],
+        "confidenceLabel": "HIGH",
+        "justification": "Pedido de consulta de chamado",
+        "decision": "ASK",
+        "traceId": "4ddd6f74-3004-453c-aa00-81a9ee506a3e"
+      }
+    },
+    {
+      "name": "status uses real scoped tools",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "audited agent run completed",
+      "passed": true,
+      "detail": [
+        {
+          "trace_id": "4ddd6f74-3004-453c-aa00-81a9ee506a3e",
+          "conversation_id": "a9fbe2b2-8274-4db3-affe-4449956f5568",
+          "user_id": "u-ana",
+          "mode": "deterministic",
+          "status": "COMPLETED",
+          "started_at": "2026-10-28T12:08:51.204Z",
+          "input_digest": "07cb25535c7850dcee664b11cd0dd7e62e1645a62e5f94d4aaf5f93d6c7f57f9",
+          "model": null,
+          "decision": "ASK",
+          "finished_at": "2026-10-28T12:08:56.385Z",
+          "response_digest": "1079afefc3d065c3865af9dfad4f94667df77422bc008f71753cd28c5c99cb57",
+          "error_code": null
+        }
+      ]
+    }
+  ],
+  "traces": [
+    {
+      "traceId": "4ddd6f74-3004-453c-aa00-81a9ee506a3e",
+      "intent": "TICKET_STATUS",
+      "decision": "ASK",
+      "mode": "deterministic-fallback"
+    }
+  ],
+  "conversations": [
+    "a9fbe2b2-8274-4db3-affe-4449956f5568"
+  ],
+  "finishedAt": "2026-10-28T12:09:05.283347+00:00",
+  "deployment": "dpl_8dzKjSfviMv1F5gFBZ95tKBkyAwD",
+  "commit": "07242f2956716faca1bff5e18a714be8a142d9bf"
+}

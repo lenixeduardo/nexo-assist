@@ -4,7 +4,7 @@ export const CATEGORIES:Category[]=['Acesso','Rede e VPN','Hardware','Software',
 export const PRIORITY_LABELS:Record<Priority,string>={CRITICA:'Crítica',ALTA:'Alta',MEDIA:'Média',BAIXA:'Baixa'};
 export function classify(text:string):{type:TicketType;category:Category}{
  const s=text.toLocaleLowerCase('pt-BR');
- const type:TicketType=/(preciso de|solicito|gostaria de|quero (um|uma|acesso)|pedido|solicita[cç][aã]o|novo monitor|licen[cç]a|instalar software)/.test(s)?'REQ':'INC';
+ const type:TicketType=/(preciso de|solicitar|solicito|gostaria de|quero (um|uma|acesso)|pedido|solicita[cç][aã]o|novo monitor|licen[cç]a|instalar software)/.test(s)?'REQ':'INC';
  const category:Category=/(vpn|wi-?fi|rede|internet|conex[aã]o|conectar)/.test(s)?'Rede e VPN':/(notebook|monitor|tela|mouse|teclado|impressora|computador|hardware|driver)/.test(s)?'Hardware':/(senha|acesso|permiss[aã]o|sap|mfa|bloquead[oa])/.test(s)?'Acesso':/(outlook|e-?mail|email|caixa postal)/.test(s)?'E-mail':/(programa|software|aplicativo|excel|word|instala[cç][aã]o)/.test(s)?'Software':'Outros';
  return {type,category};
 }

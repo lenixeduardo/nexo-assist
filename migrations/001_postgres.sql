@@ -1,0 +1,20 @@
+-- Nexo Assist: PostgreSQL 15+ schema; application tables are backend-only.
+-- Never grant anon/authenticated access to this schema.
+CREATE SCHEMA IF NOT EXISTS nexo;
+REVOKE ALL ON SCHEMA nexo FROM PUBLIC, anon, authenticated;
+CREATE TABLE IF NOT EXISTS nexo.users (id text PRIMARY KEY, name text NOT NULL, email text NOT NULL UNIQUE, role text NOT NULL CHECK (role IN ('EMPLOYEE','ANALYST')), department text NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.articles (id text PRIMARY KEY, title text NOT NULL, body text NOT NULL, category text NOT NULL, platforms text NOT NULL, conditions text NOT NULL, updated_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.tickets (id text PRIMARY KEY, owner_user_id text NOT NULL REFERENCES nexo.users(id), title text NOT NULL, description text NOT NULL, type text NOT NULL, category text NOT NULL, priority text NOT NULL, affected text NOT NULL, status text NOT NULL, opened_at timestamptz NOT NULL, last_updated_at timestamptz NOT NULL, resolved_at timestamptz, version integer NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS nexo.ticket_events (id text PRIMARY KEY, ticket_id text NOT NULL REFERENCES nexo.tickets(id), actor_id text NOT NULL, type text NOT NULL, content text NOT NULL, created_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.conversations (id text PRIMARY KEY, user_id text NOT NULL REFERENCES nexo.users(id), state text NOT NULL DEFAULT 'AGENT_ACTIVE', assigned_analyst_id text, session_count integer NOT NULL DEFAULT 0, version integer NOT NULL DEFAULT 1, created_at timestamptz NOT NULL, updated_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.messages (id text PRIMARY KEY, conversation_id text NOT NULL REFERENCES nexo.conversations(id), sender_id text, role text NOT NULL, text text NOT NULL, ui_json text, trace_json text, created_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.drafts (id text PRIMARY KEY, conversation_id text NOT NULL REFERENCES nexo.conversations(id), owner_user_id text NOT NULL, action text NOT NULL, ticket_id text, title text NOT NULL, description text NOT NULL, type text NOT NULL, category text NOT NULL, priority text NOT NULL, affected text NOT NULL, justification text NOT NULL, status text NOT NULL, version integer NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS nexo.conversation_processing (conversation_id text PRIMARY KEY REFERENCES nexo.conversations(id), token text NOT NULL, started_at bigint NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.handoffs (id text PRIMARY KEY, conversation_id text NOT NULL REFERENCES nexo.conversations(id), reason text NOT NULL, summary text NOT NULL, created_at timestamptz NOT NULL);
+CREATE TABLE IF NOT EXISTS nexo.idempotency_keys (key text NOT NULL, owner_user_id text NOT NULL, result_json text NOT NULL, PRIMARY KEY (key,owner_user_id));
+CREATE TABLE IF NOT EXISTS nexo.agent_runs (trace_id text PRIMARY KEY, conversation_id text NOT NULL REFERENCES nexo.conversations(id), user_id text NOT NULL REFERENCES nexo.users(id), mode text NOT NULL, status text NOT NULL, started_at text NOT NULL, input_digest text NOT NULL, model text, decision text, finished_at text, response_digest text, error_code text);
+CREATE TABLE IF NOT EXISTS nexo.agent_audit_events (id text PRIMARY KEY, trace_id text NOT NULL REFERENCES nexo.agent_runs(trace_id), seq integer NOT NULL, kind text NOT NULL, name text NOT NULL, started_at text NOT NULL, duration_ms integer, outcome text NOT NULL, input_json text, output_json text, input_digest text, output_digest text, resource_ids_json text, UNIQUE(trace_id,seq));
+CREATE INDEX IF NOT EXISTS idx_nexo_ticket_owner ON nexo.tickets(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_nexo_convo_user ON nexo.conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_nexo_message_convo ON nexo.messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_nexo_audit_trace ON nexo.agent_audit_events(trace_id,seq);

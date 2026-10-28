@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-28",
+  "codeCommit": "ce33027982239d5de006d00e2467d1390f357aa3",
+  "provider": "nvidia",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "credentialPresentInProduction": true,
+  "credentialValueIncluded": false,
+  "liveInferencePassed": false,
+  "attempts": [
+    {
+      "model": "mistralai/mistral-large-3-675b-instruct-2512",
+      "status": 410,
+      "reason": "Model retired by provider",
+      "traceId": "1620b9da-c20d-4dcb-899c-959b72557d3c"
+    },
+    {
+      "model": "mistralai/mistral-large-2-instruct",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "b158b788-0cfa-45de-8a37-7fba1516fec3"
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "bbcd5112-bbf6-432c-98f3-dca78757b746"
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "credentialReplaced": true,
+      "testedAt": "2026-10-28T12:43:42Z",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "8227fb39-f915-4bf2-90bb-11e62c3262df",
+      "providerRequestId": "31b0299f-0d4d-49c7-9442-8494c4106840",
+      "deploymentId": "dpl_BE6v54r6jkogtXxXeZ4QVzaevngz"
+    }
+  ],
+  "ci": {
+    "passed": 35,
+    "failed": 0,
+    "url": "https://github.com/lenixeduardo/nexo-assist/actions/runs/40688439832"
+  },
+  "mutationsFromLiveTests": 0,
+  "productionModeUntilAccessFixed": "deterministic",
+  "nextAction": "Verify hosted endpoint access with NVIDIA support; repeated key replacement did not resolve the error."
+}

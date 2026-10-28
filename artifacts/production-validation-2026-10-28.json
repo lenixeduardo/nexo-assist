@@ -1,0 +1,482 @@
+{
+  "production": {
+    "date": "2026-10-28T11:36:12.087511+00:00",
+    "url": "https://nexo-assist-self.vercel.app",
+    "commit": "2963b1d6971ffe98dbcf564b3a7fadf611922982",
+    "checks": [
+      {
+        "name": "public health and database initialization",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "login EMPLOYEE",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "secure session cookie EMPLOYEE",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "login ANALYST",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "secure session cookie ANALYST",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "anonymous protected endpoint",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "employee analyst queue forbidden",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "other employee ticket denied",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "session restoration",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "ticket ownership",
+        "passed": true,
+        "detail": {
+          "count": 0
+        }
+      },
+      {
+        "name": "/api/conversations",
+        "passed": true,
+        "detail": {
+          "status": 201,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "draft response",
+        "passed": true,
+        "detail": {
+          "paused": false,
+          "response": {
+            "text": "Rascunho D-70C66B92: INC · Hardware · Média. Problema com alternativa de trabalho. Prazo previsto para a próxima resposta: 02/11/2026, 11:37:23. Confirme os dados para criar o chamado. Nenhum chamado foi aberto ainda.",
+            "trace": {
+              "intent": "TICKET_CREATE",
+              "extractedFacts": {
+                "messageSummary": "Minha impressora está travando, só eu, tenho alternativa de usar outra impressora",
+                "agentMode": "deterministic-fallback",
+                "type": "INC",
+                "category": "Hardware",
+                "facts": {
+                  "request": false,
+                  "affected": "SELF",
+                  "blocked": false,
+                  "todayDeadline": false,
+                  "hasWorkaround": true
+                }
+              },
+              "missingFields": [],
+              "actions": [
+                {
+                  "name": "findPotentialDuplicates",
+                  "outcome": "OK",
+                  "durationMs": 1031
+                },
+                {
+                  "name": "classifyPriority",
+                  "outcome": "OK",
+                  "durationMs": 574
+                },
+                {
+                  "name": "getSla",
+                  "outcome": "OK",
+                  "durationMs": 612
+                },
+                {
+                  "name": "createDraft",
+                  "outcome": "OK",
+                  "durationMs": 1270
+                }
+              ],
+              "policyRules": [
+                "P_MEDIUM_WORKAROUND",
+                "DRAFT_CONFIRMATION_REQUIRED"
+              ],
+              "confidenceLabel": "MEDIUM",
+              "justification": "Descrição de incidente ou requisição de TI",
+              "decision": "PROPOSE_DRAFT",
+              "traceId": "286e28c7-967f-45f3-bd09-75280f5502ab"
+            },
+            "ui": {
+              "type": "draft",
+              "draftId": "D-70C66B92"
+            }
+          },
+          "conversation": {
+            "id": "eb21dc0a-2e21-458b-b745-5e03a2ee1352",
+            "user_id": "u-ana",
+            "state": "AGENT_ACTIVE",
+            "assigned_analyst_id": null,
+            "session_count": 1,
+            "version": 1,
+            "created_at": "2026-10-28T11:37:12.699Z",
+            "updated_at": "2026-10-28T11:37:28.829Z"
+          }
+        }
+      },
+      {
+        "name": "no mutation before confirmation",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/drafts/D-70C66B92/confirm",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/drafts/D-70C66B92/confirm",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "idempotent confirmation",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "new ticket persisted",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "audit persisted",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "handoff state",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "agent pauses on handoff",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "analyst queue includes conversation",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/analyst/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/assume",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/analyst/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/message",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "analyst message visible to employee",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/analyst/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/return",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "agent resumes after return",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/analyst/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/assume",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/analyst/conversations/eb21dc0a-2e21-458b-b745-5e03a2ee1352/close",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "conversation closed persisted",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "closed conversation blocks messages",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/logout",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "logout invalidates browser cookie",
+        "passed": true,
+        "detail": null
+      }
+    ],
+    "conversation": "eb21dc0a-2e21-458b-b745-5e03a2ee1352",
+    "ticket": "INC-20520"
+  },
+  "extra": {
+    "date": "2026-10-28T11:41:29.505296+00:00",
+    "url": "https://nexo-assist-self.vercel.app",
+    "commit": "2963b1d6971ffe98dbcf564b3a7fadf611922982",
+    "checks": [
+      {
+        "name": "/api/login",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/conversations",
+        "passed": true,
+        "detail": {
+          "status": 201,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/conversations/b011758d-364e-41d5-bb56-c7ef0003b9c8/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "duplicate prevented by agent",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/conversations/b011758d-364e-41d5-bb56-c7ef0003b9c8/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "Windows 11 applicability respected",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/conversations/fcc78f94-6545-4bfa-8aba-fa2feb505bcc/messages",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "ticket update requires draft",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "/api/drafts/D-0F09F34D/cancel",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "draft cancellation persisted",
+        "passed": true,
+        "detail": null
+      }
+    ],
+    "conversation": "b011758d-364e-41d5-bb56-c7ef0003b9c8"
+  },
+  "persistence": {
+    "date": "2026-10-28T11:41:31.960120+00:00",
+    "url": "https://nexo-assist-self.vercel.app",
+    "commit": "2963b1d6971ffe98dbcf564b3a7fadf611922982",
+    "checks": [
+      {
+        "name": "/api/login",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "ticket survives deployment",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "closed conversation and messages survive deployment",
+        "passed": true,
+        "detail": null
+      },
+      {
+        "name": "audit survives deployment",
+        "passed": true,
+        "detail": null
+      }
+    ]
+  },
+  "limit": {
+    "date": "2026-10-28T11:38:24.787751+00:00",
+    "url": "https://nexo-assist-self.vercel.app",
+    "commit": "2963b1d6971ffe98dbcf564b3a7fadf611922982",
+    "checks": [
+      {
+        "name": "/api/login",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "/api/conversations",
+        "passed": true,
+        "detail": {
+          "status": 201,
+          "error": null
+        }
+      },
+      {
+        "name": "message 1",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "message 10",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "message 20",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "message 30",
+        "passed": true,
+        "detail": {
+          "status": 200,
+          "error": null
+        }
+      },
+      {
+        "name": "message 31",
+        "passed": true,
+        "detail": {
+          "status": 429,
+          "error": {
+            "code": "SESSION_MESSAGE_LIMIT",
+            "message": "Você alcançou 30 mensagens nesta sessão. Inicie outra conversa."
+          }
+        }
+      },
+      {
+        "name": "exact session count",
+        "passed": true,
+        "detail": null
+      }
+    ],
+    "conversation": "b1c47ea0-587e-4343-9ea4-c782e4d33884"
+  }
+}
