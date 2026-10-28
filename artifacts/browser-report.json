@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "tests": [
+    "login and empty chat",
+    "profile",
+    "draft and confirmation UI",
+    "auditable trace panel",
+    "explicit backend ticket confirmation",
+    "overdue ticket transfers to analyst",
+    "analyst assumes and pauses agent",
+    "return to agent",
+    "mobile layout no horizontal overflow"
+  ],
+  "count": 9,
+  "browser": "Chromium (Playwright, HTTP bridge)",
+  "limitation": "Sandbox blocks browser localhost navigation; Python bridge forwards browser fetch calls to real HTTP service. Pencil raw .pen has no native rendered reference.",
+  "screenshots": [
+    "01-login.png",
+    "02-novo-chamado.png",
+    "03-consulta-transferencia.png",
+    "04-console-transferido.png",
+    "05-analista-assumiu.png",
+    "06-perfil.png",
+    "07-mobile-chat.png"
+  ]
+}
