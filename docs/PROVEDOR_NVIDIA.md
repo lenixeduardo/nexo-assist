@@ -19,3 +19,9 @@ Fontes técnicas verificadas:
 - https://docs.api.nvidia.com/nim/reference/mistralai-mistral-large-3-675b-instruct-2512
 
 A documentação NVIDIA confirma suporte a português, function calling e JSON. A autorização, disponibilidade, quota e condições financeiras da conta precisam ser verificadas pelo titular; não há promessa de uso gratuito.
+
+## Verificação desta migração
+
+Commit: c406483afb91a099f90f6f1e0028f30d1b698960. CI completo em PostgreSQL real: https://github.com/lenixeduardo/nexo-assist/actions/runs/40686533051 — aprovado, incluindo o Anexo A e os testes de seleção de provedor. Build e 15 testes focados locais aprovados; diff sem erros de whitespace.
+
+Deploy dpl_EdfLdmVXr1JWFE4gwoakMaQz2Vw6 em estado READY. GET https://nexo-assist-self.vercel.app/api/health retornou ok=true após a publicação. A execução NVIDIA real não foi tentada sem credencial: faltava NVIDIA_API_KEY no projeto. Essa verificação de infraestrutura não equivale à aprovação da inferência ou do tool calling do modelo.
