@@ -1,0 +1,22 @@
+name: Nexo visual audit screenshots
+on:
+  push:
+    branches: [audit/nexo-pixel-perfect-20261028]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/visual-audit-capture.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nexo-production-login-screenshots
+          path: artifacts/visual-audit/*.jpg
