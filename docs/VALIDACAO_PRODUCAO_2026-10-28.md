@@ -33,9 +33,10 @@ Foram executadas chamadas HTTPS reais à URL pública, com cookies de sessão re
 | Encerramento | Rafael encerra; estado CLOSED persistido e envio posterior retorna `409` |
 | Auditoria | Execuções e eventos relidos pela API da conversa |
 | Logout | Cookie removido pelo cliente; `/api/me` volta a `401` |
+| Limite de sessão | 30 mensagens aceitas; a 31ª rejeitada com HTTP 429 / SESSION_MESSAGE_LIMIT; contador preservado em 30 |
 | Persistência em novo deploy | INC-20520, conversa encerrada, mensagem do analista e auditoria preservados |
 
-O conjunto principal aprovou 36/36 verificações. O complemento aprovou 10/10 e a releitura após novo deploy aprovou 4/4. Os dados sintéticos criados foram mantidos como evidência: chamado INC-20520 e conversa encerrada `eb21dc0a-2e21-458b-b745-5e03a2ee1352`.
+O conjunto principal aprovou 36/36 verificações. O complemento aprovou 10/10, a releitura após novo deploy aprovou 4/4 e o limite de sessão aprovou 8/8 asserções (31 envios sequenciais). Total: 58/58 verificações registradas. Os dados sintéticos criados foram mantidos como evidência: chamado INC-20520 e conversa encerrada `eb21dc0a-2e21-458b-b745-5e03a2ee1352`.
 
 ## Build e testes automatizados
 
