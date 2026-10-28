@@ -1,23 +1,27 @@
 services:
   - type: web
-    name: nexo-assist-demo
+    name: nexo-assist
     runtime: docker
     plan: starter
     healthCheckPath: /api/health
-    disk:
-      name: nexo-assist-data
-      mountPath: /data
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
-      - key: DB_PATH
-        value: /data/nexo.sqlite
-      - key: APP_DEMO_LOGIN
-        value: 'false'
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_AUTH_USERS_JSON
+        sync: false
       - key: APP_SESSION_SECRET
         generateValue: true
-      - key: USE_MASTRA
+      - key: SEED_DEMO_TICKETS
         value: 'false'
+      - key: USE_MASTRA
+        value: 'true'
+      - key: MASTRA_PROVIDER
+        value: mistral
+      - key: MASTRA_MODEL
+        value: mistral/mistral-small-latest
+      - key: MISTRAL_API_KEY
+        sync: false
