@@ -33,7 +33,7 @@ export async function query<T=pg.QueryResultRow>(sql:string,...values:Params):Pr
  const c=await p.connect();
  try{
   await c.query('SET search_path TO nexo, pg_catalog');
-  return (await c.query(qualified(sql),[...values])).rows;
+  return (await c.query(qualified(sql),[...values])).rows as T[];
  }finally{c.release()}
 }
 export async function one<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T|undefined>{
