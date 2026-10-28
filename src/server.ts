@@ -23,7 +23,7 @@ function authenticated(email:string,password:string):boolean{
  return timingSafeEqual(actual,expected);
 }
 const PORT=Number(process.env.PORT||3000);
-const root=resolve(process.cwd(),'public');
+const root=resolve(dirname(fileURLToPath(import.meta.url)),'public');
 const types:Record<string,string>={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon'};
 const rate=new Map<string,{start:number,count:number}>();
 const loginRate=new Map<string,{start:number,count:number}>();
