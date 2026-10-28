@@ -2,7 +2,7 @@
 
 ## Resultado e cobertura
 
-Commit de código: `a56781e1e36bcf9dbaee50efa8862917453dc235`. [CI com PostgreSQL 16 real](https://github.com/lenixeduardo/nexo-assist/actions/runs/40684397115): **26/26 testes passaram**, sem skips. Inclui regressão de seed incremental, políticas, HTTP e estes cenários em transações revertidas:
+Commit de código: `07242f2956716faca1bff5e18a714be8a142d9bf`. [CI com PostgreSQL 16 real](https://github.com/lenixeduardo/nexo-assist/actions/runs/40685264486): **28/28 testes passaram**, sem skips. Inclui regressão de seed incremental, políticas, HTTP e estes cenários em transações revertidas:
 
 | Cenário | Evidência automatizada |
 |---|---|
@@ -29,6 +29,7 @@ Produção contém cinco usuários, oito artigos e os sete fixtures do Anexo B, 
 2. “Solicitar monitor” era INC; agora classifica REQ. Reproduzido localmente por A1 antes da correção.
 3. “Notebook lento após atualização” era confundido com comando de atualização do ticket. A4 falhou na [execução 40684134733](https://github.com/lenixeduardo/nexo-assist/actions/runs/40684134733); após restringir o verbo ao comando explícito, passou.
 4. Smoke do Mastra usava SQLite e não aguardava operações assíncronas. Corrigido para PostgreSQL, imports e auditoria aguardados.
+5. Um timeout transitório do PostgreSQL na inicialização mantinha a promessa rejeitada para solicitações posteriores daquela instância. Agora inicializações concorrentes são compartilhadas e uma falha permite nova tentativa na próxima requisição; dois testes locais passaram após reproduzir a falha.
 
 ## Execução externa do LLM — bloqueada, não aprovada
 
@@ -43,3 +44,7 @@ A conta não foi alterada financeiramente. O modo demonstrativo foi restaurado e
 Ativar USE_MASTRA=true em Production, criar novo deploy e executar `scripts/production-acceptance.py` com as credenciais no ambiente. O padrão exige modo Mastra, eventos do modelo e uso real persistido. Não usar NEXO_REQUIRE_MASTRA=false para concluir essa etapa.
 
 A validação visual completa do protótipo permanece fora desta bateria de API/domínio.
+
+## Verificação final do deploy demonstrativo
+
+Deploy `dpl_8dzKjSfviMv1F5gFBZ95tKBkyAwD`, READY, commit `07242f2956716faca1bff5e18a714be8a142d9bf`. Smoke HTTPS final aprovado em **6/6 verificações**: login de Ana/Rafael, fixtures presentes, 404 para chamado existente de Bruno, resposta sem falha de runtime, consulta de status e execução auditada COMPLETED. Executado explicitamente com NEXO_REQUIRE_MASTRA=false; não comprova LLM real. Evidência: `artifacts/annex-a-production-demo-smoke.json`. A tentativa real bloqueada permanece em `artifacts/mastra-live-attempt-2026-10-28.json`.
