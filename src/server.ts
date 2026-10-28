@@ -1,3 +1,4 @@
+import {retryableInitialization} from './initialization.js';
 import {auditForConversation} from './postgres-audit.js';
 import {createServer,IncomingMessage,ServerResponse} from 'node:http';
 import {readFileSync,existsSync} from 'node:fs';
@@ -42,8 +43,8 @@ function limit(u:User){const now=Date.now(),v=rate.get(u.id);if(!v||now-v.start>
 function checkOrigin(req:IncomingMessage){if(['POST','PATCH','DELETE','PUT'].includes(req.method||'')){const origin=req.headers.origin;const host=req.headers.host;if(origin&&host){try{if(process.env.APP_PUBLIC_ORIGIN&&origin!==process.env.APP_PUBLIC_ORIGIN)throw new DomainError('UNAUTHORIZED','Origem não autorizada',403);if(new URL(origin).host!==host&&(!process.env.APP_PUBLIC_ORIGIN||origin!==process.env.APP_PUBLIC_ORIGIN))throw new DomainError('UNAUTHORIZED','Origem da requisição inválida',403)}catch(e){if(e instanceof DomainError)throw e;throw new DomainError('UNAUTHORIZED','Origem inválida',403)}}}}
 function staticFile(req:IncomingMessage,res:ServerResponse,path:string){const key=path==='/'?'index.html':path.slice(1);if(key.includes('..')||key.startsWith('.'))throw new DomainError('NOT_FOUND','Não encontrado',404);const full=resolve(root,key);if(!full.startsWith(root+'/')||!existsSync(full))throw new DomainError('NOT_FOUND','Página não encontrada',404);res.writeHead(200,{'Content-Type':types[extname(full)]||'application/octet-stream','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'"});res.end(readFileSync(full));}
 const toMessages=async(id:string)=>(await messagesFor(id)).map(m=>({id:m.id,role:m.role,text:m.text,createdAt:m.created_at,ui:m.ui_json?JSON.parse(m.ui_json):null,trace:m.trace_json?JSON.parse(m.trace_json):null}));
-const ready=seed();
-async function route(req:IncomingMessage,res:ServerResponse){await ready;const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);const p=url.pathname,method=req.method||'GET';checkOrigin(req);
+const ensureReady=retryableInitialization(seed);
+async function route(req:IncomingMessage,res:ServerResponse){await ensureReady();const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);const p=url.pathname,method=req.method||'GET';checkOrigin(req);
  if(p==='/api/health')return json(res,{ok:true,service:'nexo-assist',now:new Date().toISOString()});
  if(p==='/api/login'&&method==='POST'){
  limitLogin(req);if(process.env.NODE_ENV==='production'&&!process.env.APP_AUTH_USERS_JSON)throw new DomainError('AUTH_NOT_CONFIGURED','Autenticação não configurada',503);
