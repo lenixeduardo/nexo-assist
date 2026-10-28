@@ -16,3 +16,72 @@
 .analyst-main{background:#EEF1F5}
 .btn:focus-visible,.nav-item:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #0285F7;outline-offset:2px}
 .loading-screen{color:var(--ink)}
+
+
+/* Pencil fidelity pass — original desktop frames at 1440 × 900.
+   All rules are scoped or deliberate token overrides; functional application logic is unchanged. */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap');
+:root{--paper:#fff;--shade:#f6f7f9;--ink:#1b2431;--muted:#5b6472;--line:#e6e8ec;--blue:#0062c4;--light:#eaf2fc;--deep:#1b2431}
+body{background:var(--paper);color:var(--ink);font-family:'Schibsted Grotesk',Inter,Arial,sans-serif}
+h1,h2,h3{letter-spacing:normal}
+.login-screen{grid-template-columns:800fr 640fr}
+.login-showcase{background:#1b2431;color:#fff;padding:40px 64px 48px;min-height:900px}
+.login-showcase .brand{gap:10px;font-size:17px;font-weight:500;letter-spacing:0;align-items:center}
+.login-showcase .brand:after{content:'Service desk de TI da Nexo';position:absolute;top:63px;left:64px;color:#aeb6c2;font-size:13px;font-weight:400;letter-spacing:0}
+.login-showcase .brand-icon{background:transparent;color:#fff;width:24px;height:24px;border-radius:0;font-size:23px}
+.showcase-main{max-width:672px}
+.showcase-main h1{font-family:Newsreader,Georgia,serif;font-size:56px;line-height:1.02;letter-spacing:-1.1px;font-weight:400;margin:0 0 22px;max-width:672px}
+.showcase-main>p{font-size:16px;line-height:1.55;color:#aeb6c2;max-width:540px}
+.demo-chat{max-width:500px;margin:38px 0 0 96px;padding:18px;border-radius:16px;background:#232d3c;color:#f5f7fa;box-shadow:none}
+.bubble-user-preview{max-width:320px;background:#fff;color:#1b2431;padding:10px 14px;border-radius:12px 12px 4px 12px;font-size:12.5px}
+.demo-agent{margin-top:14px;gap:7px;font-size:13px}
+.demo-agent-meta{font-size:12px;color:#fff}
+.demo-agent-meta span{color:#8995a7;margin-left:6px}
+.demo-agent-bubble{background:#35404f;border-radius:4px 12px 12px 12px;padding:10px 14px;max-width:380px}
+.demo-ticket{display:flex;align-items:center;gap:7px;background:#fff;border-radius:18px;color:#3d4656;width:max-content;max-width:100%;padding:6px 12px;font-size:11px;white-space:nowrap}
+.demo-ticket strong{font-weight:500;color:#1b2431}
+.demo-ticket span:last-child{overflow:hidden;text-overflow:ellipsis}
+.demo-status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f5a500}
+.showcase-foot{gap:0;color:#aeb6c2}
+.showcase-foot .metric{flex:1;min-width:0}
+.showcase-foot .metric:not(:first-child){padding-left:24px}
+.metric strong{font-family:Newsreader,Georgia,serif;font-size:34px;font-weight:400;line-height:1.1}
+.metric small{display:block;font-size:12px;line-height:1.5}
+.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#00bd6c;vertical-align:middle}
+.login-right{padding:40px 56px;background:#fff}
+.login-help{font-size:13px}
+.login-help a{color:#0069c7;text-decoration:none;margin-left:4px}
+.login-help a:hover{text-decoration:underline}
+.login-form-container{max-width:380px}
+.login-form-container h2{font-family:Newsreader,Georgia,serif;font-weight:400;font-size:40px;line-height:1.1;letter-spacing:0;margin-bottom:12px}
+.login-form-container>p{font-size:14px;color:#5b6472}
+.login-form-container form{margin-top:28px}
+.login-form-container .field{margin:16px 0}
+.login-form-container .field input{border-color:#e6e8ec;border-radius:10px;padding:12px 14px;height:44px}
+.login-form-container .label{font-size:13px;color:#3d4656;font-weight:500}
+.login-form-container .forgot{font-size:13px;color:#0069c7;cursor:help}
+.remember-label{display:flex;align-items:center;gap:10px;font-size:13px;color:#3d4656;margin:24px 0}
+.remember-label input{width:18px;height:18px;accent-color:#0062c4;margin:0}
+.login-form-container .btn.primary{background:#0062c4;border-color:#0062c4;height:44px;font-weight:500;border-radius:8px}
+.login-foot{display:flex;justify-content:space-between;gap:10px;font-size:12px;text-align:left}
+.demo-users{margin-top:22px;padding-top:15px}
+.demo-users .label{font-size:11px}
+.shell{grid-template-columns:232px minmax(0,1fr)}
+.sidebar{background:#fff}
+.topbar{height:64px;padding:12px 28px}
+.chat-body{background:#f6f7f9}
+.message.user .bubble{background:#1b2431;color:#fff;border-color:#1b2431;border-radius:12px 12px 4px 12px}
+.message.agent .bubble{background:#fff;color:#1b2431;border-color:#e6e8ec;border-radius:4px 12px 12px 12px}
+.message .bubble{font-family:'Schibsted Grotesk',Inter,Arial,sans-serif}
+.analyst-shell{grid-template-columns:64px 380px minmax(300px,1fr) 340px}
+.rail{background:#f6f7f9;color:#1b2431;border-right:1px solid #e6e8ec}
+.rail .brand-icon{background:#1b2431;color:#fff}
+.queue{background:#fff}
+.analyst-main .chat-body{background:#f6f7f9}
+.analyst-main .topbar{height:64px;padding:12px 22px}
+.analyst-right{background:#fff}
+.profile-center{background:#f6f7f9}
+.profile-card{border-color:#e6e8ec}
+@media(max-width:1439px) and (min-width:1151px){.analyst-shell{grid-template-columns:64px 330px minmax(300px,1fr) 300px}}
+@media(max-width:1150px){.analyst-shell{grid-template-columns:56px 270px minmax(350px,1fr)}.analyst-right{display:none}.analyst-main .topbar{height:64px}.login-showcase{padding:35px;min-height:660px}.login-showcase .brand:after{top:59px;left:35px}.login-right{padding:35px}}
+@media(max-width:760px){.login-screen{grid-template-columns:1fr}.login-showcase{min-height:300px;padding:26px 24px 30px}.login-showcase .brand:after{top:49px;left:24px;font-size:11px}.login-showcase .showcase-main h1{font-size:32px;line-height:1.04;margin:0 0 12px}.login-showcase .showcase-main>p{font-size:13px}.demo-chat,.showcase-foot{display:none}.login-right{min-height:560px;padding:28px 24px}.login-form-container{margin:35px auto}.login-form-container h2{font-size:36px}.login-foot{font-size:11px}.shell{grid-template-columns:1fr}.topbar{height:64px;padding:12px 17px}.analyst-shell{grid-template-columns:56px minmax(0,1fr)}.rail{grid-row:1/3}.analyst-main .topbar{height:64px}}
