@@ -2,7 +2,7 @@
 
 Service desk em português com chat de triagem, chamados simulados, confirmação explícita, transferência humana, console do analista e auditoria persistente.
 
-**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM é o caminho exigido pelo desafio; sua implementação está integrada ao AI Gateway, com ativação produtiva bloqueada pela verificação de cobrança da conta Vercel. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
+**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM é o caminho exigido pelo desafio; sua implementação usa a API direta NVIDIA com modelo Mistral. A ativação produtiva aguarda NVIDIA_API_KEY como segredo do projeto. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
 
 **Produção:** https://nexo-assist-self.vercel.app/
 
@@ -55,7 +55,7 @@ Configure no ambiente Production:
 - `APP_SESSION_SECRET`: segredo aleatório com pelo menos 32 caracteres.
 - `APP_AUTH_USERS_JSON`: objeto `{ "email": "scrypt:SALT_HEX:HASH_HEX" }`; salt de 16 bytes decodificado de hex, derivação de 64 bytes com N=16384, r=8, p=1.
 - `NODE_ENV=production`; `SEED_DEMO_TICKETS=true` apenas para dados demonstrativos.
-- `USE_MASTRA=true`, `MASTRA_PROVIDER=gateway`, `MASTRA_MODEL=openai/gpt-4.1-mini` para Mastra real com OIDC do deploy. Enquanto o Gateway exigir verificação de cobrança, o deploy público conserva `USE_MASTRA=false` para manter a demonstração funcional; esse modo não atende ao requisito de LLM.
+- `USE_MASTRA=true`, `MASTRA_PROVIDER=nvidia`, `MASTRA_MODEL=nvidia/mistralai/mistral-large-3-675b-instruct-2512` e `NVIDIA_API_KEY` como segredo para Mastra real direto. Enquanto a chave não for cadastrada, o deploy conserva `USE_MASTRA=false`; esse modo não atende ao requisito de LLM.
 
 Após qualquer mudança nas variáveis, crie um novo deploy. Não publique segredos no código, logs ou relatório. O domínio público canônico acima difere dos aliases de preview protegidos por Vercel Authentication.
 
@@ -83,26 +83,30 @@ O limite é de 30 mensagens do funcionário por sessão ativa com o agente. Prio
 
 O modo determinístico não comprova a execução real do Mastra com provedor LLM. A comparação pixel-perfect nativa com Pencil e a revisão visual completa desktop/mobile permanecem separadas. Autenticação corporativa/SSO, retenção de auditoria e operação em escala ficam fora deste protótipo.
 
-## Mastra + LLM: configuração e aceitação
+## Mastra + LLM: NVIDIA direta com modelo Mistral
 
-Mastra `1.79.0`, Zod `4.6.7` e Gateway `3.0.125` são dependências obrigatórias, com `package-lock.json`. Os imports são estáticos para a Vercel incluir o runtime. O smoke atual usa os módulos PostgreSQL e aguarda todas as escritas de auditoria.
+O caminho atual usa o roteador nativo do Mastra `1.79.0`, com `MASTRA_PROVIDER=nvidia`, `MASTRA_MODEL=nvidia/mistralai/mistral-large-3-675b-instruct-2512` e `NVIDIA_API_KEY` como segredo. A chave é enviada somente ao endpoint NVIDIA `https://integrate.api.nvidia.com/v1`. Não há dependência de AI Gateway, token OIDC ou créditos da Vercel para inferência. A biblioteca @ai-sdk/gateway foi removida.
 
-Modelo selecionado: `openai/gpt-4.1-mini`, confirmado no catálogo do Gateway em 28/10/2026. Foi mantido por suportar ferramentas e saída estruturada, com custo baixo para classificação curta (catálogo: US$0,40 por milhão de tokens de entrada e US$1,60 de saída). O domínio continua responsável por prioridade, propriedade e mutações confirmadas. O agente limita o histórico a seis mensagens, quatro passos, 500 tokens de saída por chamada e 45 segundos por execução; uso e tempo são auditados.
+Mistral Large 3 foi escolhido por suportar português, ferramentas e JSON, conforme a documentação NVIDIA. A disponibilidade, quota e cobrança dependem da conta NVIDIA; a troca não é promessa de uso gratuito. O modelo e as condições de acesso precisam ser comprovados com a chave da conta em um smoke real.
 
-Na Vercel, OIDC evita guardar chave de provedor. Fora da Vercel, configure `AI_GATEWAY_API_KEY`. Para provedor OpenAI direto, use `MASTRA_PROVIDER=openai` e `OPENAI_API_KEY`, somente em variáveis privadas.
+A auditoria mantém modelo, provedor de inferência, chamadas/resultados de ferramentas, uso retornado, duração e decisão. Nenhum valor de credencial é registrado. Há limite de quatro passos, 500 tokens por resposta do modelo e 45 segundos por chamada generate. As mutações continuam somente após confirmação do funcionário.
+
+### Ativar no deploy
+
+Na Vercel, no projeto nexo-assist, Settings → Environment Variables, cadastrar **NVIDIA_API_KEY** como **Sensitive/Secret**, ambiente **Production**. Depois ativar USE_MASTRA=true e fazer novo deploy. Nunca colocar a chave no código ou em mensagens de chat. As configurações não secretas de provedor e modelo já ficam preparadas.
 
 ```bash
-# Banco isolado e credenciais configurados em .env
+# Local: configurar banco isolado e NVIDIA_API_KEY em .env
 npm ci
 npm run build
 npm run smoke:mastra
 
-# Teste HTTPS: as duas senhas devem estar no ambiente, nunca no repositório.
+# Produção: senhas dos perfis devem estar no ambiente
 python scripts/production-acceptance.py
 ```
 
-O teste HTTPS exige Mastra real por padrão, falha se receber fallback determinístico e verifica chamadas do modelo, ferramentas e uso persistido. `NEXO_SMOKE_ONLY=true` reduz a execução a login, fixtures, isolamento e consulta auditada. `NEXO_REQUIRE_MASTRA=false` permite testar explicitamente apenas a demonstração; o relatório registra essa distinção. A execução completa confirma atualização e reabertura dos fixtures e escreve conversas sintéticas. Use ambiente de homologação quando desejar preservar o estado inicial dos exemplos.
+O teste HTTPS exige Mastra real por padrão, rejeita o modo determinístico e verifica eventos do modelo, ferramentas e uso persistido. NEXO_SMOKE_ONLY=true reduz a execução. NEXO_REQUIRE_MASTRA=false permite testar apenas a demonstração e registra essa distinção. A execução completa altera fixtures de atualização/reabertura e escreve conversas sintéticas; prefira homologação para preservar os exemplos originais.
 
-**Bloqueio comprovado:** uma requisição real do deploy alcançou o Gateway e recebeu `403 customer_verification_required` (cartão válido necessário na conta). Não houve geração bem-sucedida ou tokens que comprovem uso do LLM. Após liberar a conta, ativar `USE_MASTRA=true`, fazer novo deploy e repetir o teste com a exigência padrão de Mastra.
+A configuração antiga MASTRA_PROVIDER=gateway é rejeitada. Um modelo de outro provedor também é rejeitado para evitar enviar credenciais a uma rota incompatível. A configuração explícita MASTRA_PROVIDER=openai permanece disponível para uso direto com OPENAI_API_KEY.
 
-Ver [aceitação do Anexo A](docs/ACEITACAO_ANEXO_A.md). O deploy não constitui aprovação integral do desafio enquanto esse smoke real não passar.
+**Estado:** chave NVIDIA ainda não cadastrada; não declarar inferência real aprovada. O bloqueio anterior de cartão no Gateway deixa de fazer parte deste caminho. A validação histórica está em docs/ACEITACAO_ANEXO_A.md; a migração atual está em docs/PROVEDOR_NVIDIA.md.

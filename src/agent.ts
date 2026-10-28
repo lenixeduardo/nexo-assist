@@ -66,7 +66,7 @@ export async function runAgent(userId:string,conversationId:string,message:strin
    if(traceId)await recordEvent(traceId,'POLICY','classification.safety-override',{output:{modelIntent:model.intent,finalIntent:intent.intent,rule:'HANDOFF_OR_SCOPE_OVERRIDE'}});
   }else intent=model;
  }
- const trace=rules(intent.intent);trace.traceId=traceId;if(mastra){trace.actions.push(...mastra.toolActions);trace.extractedFacts.mastraModel=mastra.model;trace.extractedFacts.mastraProvider=mastra.provider;trace.extractedFacts.mastraResponseDigest=mastra.responseDigest;}trace.confidenceLabel=intent.confidence;trace.justification=intent.reason;
+ const trace=rules(intent.intent);trace.traceId=traceId;if(mastra){trace.actions.push(...mastra.toolActions);trace.extractedFacts.mastraModel=mastra.model;trace.extractedFacts.mastraProvider=mastra.provider;trace.extractedFacts.mastraUpstreamProvider=mastra.upstreamProvider;trace.extractedFacts.mastraResponseDigest=mastra.responseDigest;}trace.confidenceLabel=intent.confidence;trace.justification=intent.reason;
  trace.extractedFacts={...trace.extractedFacts,messageSummary:message.slice(0,180),agentMode:mastra?'mastra-readonly-tools-with-deterministic-domain':model?'llm-classifier-with-deterministic-domain':'deterministic-fallback'};
  const result=(text:string,decision:Trace['decision'],ui?:AgentResult['ui'])=>{trace.decision=decision;return baseResult(text,trace,ui)};
  try{

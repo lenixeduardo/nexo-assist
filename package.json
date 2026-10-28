@@ -12,7 +12,7 @@
     "start": "node --disable-warning=ExperimentalWarning dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/policy.test.mjs tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs tests/annex-a.acceptance.test.mjs tests/initialization.test.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/policy.test.mjs tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs tests/annex-a.acceptance.test.mjs tests/initialization.test.mjs tests/mastra-provider.test.mjs",
     "seed": "node --disable-warning=ExperimentalWarning dist/seed.js",
     "start:env": "node --env-file=.env --disable-warning=ExperimentalWarning dist/server.js",
     "smoke:mastra": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/mastra-live-smoke.mjs",
@@ -27,9 +27,8 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@ai-sdk/gateway": "3.0.125",
-    "pg": "^8.16.3",
     "@mastra/core": "1.79.0",
+    "pg": "^8.16.3",
     "zod": "4.6.7"
   }
 }
