@@ -79,3 +79,17 @@ test('agent audit writes trace and ordered events',async()=>isolated(async()=>{
  assert.equal(runs[0].run.status,'COMPLETED');
  assert.deepEqual(runs[0].events.map(x=>x.seq),[1,2]);
 }));
+
+test('demo seed fills missing fixtures in a nonempty database without resetting existing tickets',async()=>isolated(async()=>{
+ const previous=process.env.SEED_DEMO_TICKETS;
+ try{
+  await execute("INSERT INTO tickets(id,owner_user_id,title,description,type,category,priority,affected,status,opened_at,last_updated_at,version) VALUES('INC-79999','u-ana','Existing test','Existing test incident','INC','Hardware','MEDIA','SELF','ABERTO',now(),now(),1)");
+  process.env.SEED_DEMO_TICKETS='true';await db.seed();
+  assert.equal((await db.getMyTicket('u-ana','INC-20150')).status,'RESOLVIDO');
+  assert.equal((await db.getMyTicket('u-bruno','INC-30002')).owner_user_id,'u-bruno');
+  await execute("UPDATE tickets SET description='Preserve user update',version=version+1 WHERE id='INC-20311'");
+  await db.seed();
+  assert.equal((await db.getMyTicket('u-ana','INC-20311')).description,'Preserve user update');
+  assert.equal((await db.getMyTicket('u-ana','INC-79999')).title,'Existing test');
+ }finally{if(previous===undefined)delete process.env.SEED_DEMO_TICKETS;else process.env.SEED_DEMO_TICKETS=previous}
+}));
