@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 import {mkdirSync,writeFileSync} from 'node:fs';
 const base=process.env.NEXO_AUDIT_URL||'https://nexo-assist-self.vercel.app/';
-const apiBase=process.env.NEXO_AUDIT_API_URL;
+const branchAssets=process.env.NEXO_AUDIT_BRANCH_ASSETS_URL;
 const credentials=[
  {role:'employee',email:process.env.NEXO_AUDIT_EMPLOYEE_EMAIL,password:process.env.NEXO_AUDIT_EMPLOYEE_PASSWORD},
  {role:'analyst',email:process.env.NEXO_AUDIT_ANALYST_EMAIL,password:process.env.NEXO_AUDIT_ANALYST_PASSWORD}
@@ -13,7 +13,7 @@ async function snap(page,label,selector){await page.locator(selector).first().wa
 for(const c of credentials){
  if(!c.email||!c.password){results.push({role:c.role,status:'not_tested',reason:'Missing protected GitHub Actions audit credentials'});continue;}
  const context=await browser.newContext({viewport:{width:1440,height:900}});
- if(apiBase){await context.route('**/api/**',route=>{const original=new URL(route.request().url());const target=new URL(original.pathname+original.search,apiBase);return route.continue({url:target.toString()});});}
+ if(branchAssets){await context.route('**/*',async route=>{const pathname=new URL(route.request().url()).pathname;if(pathname==='/app.js'||pathname==='/styles.css'){const asset=await fetch(new URL(pathname,branchAssets));if(!asset.ok)throw Error('Branch asset missing: '+pathname);return route.fulfill({status:200,body:Buffer.from(await asset.arrayBuffer()),contentType:pathname.endsWith('.js')?'application/javascript':'text/css'});}return route.continue();});}
  const page=await context.newPage();
  try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:45000});
