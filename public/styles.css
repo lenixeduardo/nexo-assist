@@ -228,3 +228,13 @@ h1,h2,h3{letter-spacing:normal}
 .queue-empty-state p{font-size:12px;line-height:1.5}
 @media(max-width:1150px){.analyst-shell{grid-template-columns:56px 280px minmax(350px,1fr)}}
 @media(max-width:760px){.analyst-shell{grid-template-columns:56px minmax(0,1fr)}.queue-head{padding:18px 15px 14px}}
+
+/* Analyst rail: semantic iconography, precise hit targets and keyboard focus. */
+.analyst-shell .rail{background:#1b2431;gap:14px;padding:20px 8px}
+.analyst-shell .rail .brand-icon{background:transparent;color:#fff;width:36px;height:36px;font-size:23px;letter-spacing:-2px;padding:0}
+.rail-nav,.rail-logout{width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#aeb8c6;cursor:pointer}
+.rail-nav.active{background:#344459;color:#fff}
+.rail-nav:hover,.rail-logout:hover{background:#344459;color:#fff}
+.rail-nav svg,.rail-logout svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rail-nav:focus-visible,.rail-logout:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.analyst-shell .rail .avatar.dark{width:34px;height:34px;flex:0 0 34px;background:#344459;color:#fff}
