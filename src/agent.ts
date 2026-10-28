@@ -72,20 +72,20 @@ export async function runAgent(userId:string,conversationId:string,message:strin
  try{
  if(intent.intent==='OUT_OF_SCOPE'){trace.policyRules.push('SCOPE_IT_ONLY');return result('Atendo apenas assuntos de TI. Para questões de RH, financeiro ou infraestrutura predial, procure o setor responsável.','REFUSE')}
  if(intent.intent==='HUMAN_HANDOFF'){
- const h=await tool('requestHumanHandoff',trace,()=>await handoff(conversationId,userId,'USER_REQUEST',`Solicitação de atendimento humano: ${message.slice(0,500)}`));
+ const h=await tool('requestHumanHandoff',trace,()=>handoff(conversationId,userId,'USER_REQUEST',`Solicitação de atendimento humano: ${message.slice(0,500)}`));
  trace.policyRules.push('USER_REQUEST_HANDOFF','AGENT_PAUSED');return {...result('Encaminhei sua conversa para a fila de analistas. O agente ficará pausado até o atendimento ser devolvido.','TRANSFER'),transfer:true};
  }
  if(intent.intent==='TICKET_STATUS'){
  const foundId=message.match(ticketPattern)?.[0]?.toUpperCase();
- if(foundId){const ticket=await tool('getMyTicket',trace,()=>await getMyTicket(userId,foundId));const sla=await tool('getSla',trace,()=>ticketSla(ticket));trace.policyRules.push('OWNERSHIP','SLA_POLICY');
- if(sla.overdue){await tool('requestHumanHandoff',trace,()=>await handoff(conversationId,userId,'OVERDUE',`Chamado vencido ${ticket.id}: ${ticket.title}`));trace.policyRules.push('OVERDUE_ESCALATION');return {...result(`${ticket.id} — ${ticket.title}. Status: ${ticket.status.replaceAll('_',' ')}. Prioridade: ${sla.label}. Prazo vencido desde ${new Date(sla.dueAt).toLocaleString('pt-BR')}. Encaminhei ao analista.`, 'TRANSFER'),transfer:true};}
+ if(foundId){const ticket=await tool('getMyTicket',trace,()=>getMyTicket(userId,foundId));const sla=await tool('getSla',trace,()=>ticketSla(ticket));trace.policyRules.push('OWNERSHIP','SLA_POLICY');
+ if(sla.overdue){await tool('requestHumanHandoff',trace,()=>handoff(conversationId,userId,'OVERDUE',`Chamado vencido ${ticket.id}: ${ticket.title}`));trace.policyRules.push('OVERDUE_ESCALATION');return {...result(`${ticket.id} — ${ticket.title}. Status: ${ticket.status.replaceAll('_',' ')}. Prioridade: ${sla.label}. Prazo vencido desde ${new Date(sla.dueAt).toLocaleString('pt-BR')}. Encaminhei ao analista.`, 'TRANSFER'),transfer:true};}
  return result(`${ticket.id} — ${ticket.title}. Status: ${ticket.status.replaceAll('_',' ')}. Prioridade: ${sla.label}. Última atualização em ${new Date(ticket.last_updated_at).toLocaleString('pt-BR')}. Próximo prazo: ${new Date(sla.dueAt).toLocaleString('pt-BR')}.`,'ANSWER');}
- const all=await tool('listMyTickets',trace,()=>await listMyTickets(userId));trace.policyRules.push('OWNERSHIP');const active=all.filter(x=>!['RESOLVIDO','ENCERRADO'].includes(x.status));
+ const all=await tool('listMyTickets',trace,()=>listMyTickets(userId));trace.policyRules.push('OWNERSHIP');const active=all.filter(x=>!['RESOLVIDO','ENCERRADO'].includes(x.status));
  if(active.length===0)return result('Não há chamados ativos em seu nome. Posso ajudar a abrir um novo.','ANSWER');
  return result(`Você tem ${active.length} chamado(s) ativo(s). Selecione um para consultar:\n${listSummary(active)}`,'ASK',{type:'ticket_selection',ticketIds:active.map(t=>t.id)});
  }
  if(intent.intent==='KNOWLEDGE_QUESTION'){
- const matches=await tool('searchKnowledge',trace,()=>await searchKnowledge(message));trace.policyRules.push('ARTICLE_APPLICABILITY');
+ const matches=await tool('searchKnowledge',trace,()=>searchKnowledge(message));trace.policyRules.push('ARTICLE_APPLICABILITY');
  if(matches.length===0)return result('Não encontrei instruções aplicáveis na central de ajuda. Descreva o problema e posso iniciar a triagem de um chamado.','ASK');
  const article=matches[0]!;
  if(article.id==='KB-001'){
@@ -95,12 +95,12 @@ export async function runAgent(userId:string,conversationId:string,message:strin
  }
  if(['TICKET_UPDATE','TICKET_REOPEN'].includes(intent.intent)){
  const ticketId=message.match(ticketPattern)?.[0]?.toUpperCase();
- if(!ticketId){const own=await tool('listMyTickets',trace,()=>await listMyTickets(userId));return result(`Qual chamado deseja ${intent.intent==='TICKET_REOPEN'?'reabrir':'atualizar'}?\n${listSummary(own.slice(0,8))}`,'ASK',{type:'ticket_selection',ticketIds:own.map(t=>t.id)});}
- const ticket=await tool('getMyTicket',trace,()=>await getMyTicket(userId,ticketId));
+ if(!ticketId){const own=await tool('listMyTickets',trace,()=>listMyTickets(userId));return result(`Qual chamado deseja ${intent.intent==='TICKET_REOPEN'?'reabrir':'atualizar'}?\n${listSummary(own.slice(0,8))}`,'ASK',{type:'ticket_selection',ticketIds:own.map(t=>t.id)});}
+ const ticket=await tool('getMyTicket',trace,()=>getMyTicket(userId,ticketId));
  if(intent.intent==='TICKET_REOPEN'&&!canReopen(ticket))return result('Este chamado não pode ser reaberto pela regra de até sete dias após a resolução. Posso ajudar a registrar um novo incidente.','REFUSE');
  const detail=message.replace(ticketPattern,'').replace(/(atuali[sz]e?|complementar|adicion[ea]r|reabrir|reabra)/gi,'').trim();
  if(detail.length<12)return result('Qual nova informação deseja registrar? Descreva a alteração antes de eu preparar o rascunho.','ASK');
- const draft=await tool('createDraft',trace,()=>await createDraft({conversation_id:conversationId,owner_user_id:userId,action:intent.intent==='TICKET_REOPEN'?'REOPEN':'UPDATE',ticket_id:ticket.id,title:ticket.title,description:detail,type:ticket.type,category:ticket.category,priority:ticket.priority,affected:ticket.affected,justification:'Complemento solicitado pelo proprietário'}));
+ const draft=await tool('createDraft',trace,()=>createDraft({conversation_id:conversationId,owner_user_id:userId,action:intent.intent==='TICKET_REOPEN'?'REOPEN':'UPDATE',ticket_id:ticket.id,title:ticket.title,description:detail,type:ticket.type,category:ticket.category,priority:ticket.priority,affected:ticket.affected,justification:'Complemento solicitado pelo proprietário'}));
  trace.policyRules.push('DRAFT_CONFIRMATION_REQUIRED','OWNERSHIP');return result(`Preparei o rascunho ${draft.id} para ${ticket.id}. Confira a informação e confirme para gravar. Nenhuma alteração foi feita ainda.`, 'PROPOSE_DRAFT',{type:'draft',draftId:draft.id});
  }
  if(intent.intent==='TICKET_CREATE'){
@@ -109,14 +109,14 @@ export async function runAgent(userId:string,conversationId:string,message:strin
  if(!problem)return result('Qual equipamento, aplicativo ou acesso está apresentando problema?','ASK');
  // VPN KB-001 requires Windows version.
  if(/vpn|erro 809/i.test(combined)&&!/windows\s*(10|11)/i.test(combined)){
- trace.missingFields.push('platform');await tool('searchKnowledge',trace,()=>await searchKnowledge('VPN erro 809'));
+ trace.missingFields.push('platform');await tool('searchKnowledge',trace,()=>searchKnowledge('VPN erro 809'));
  return result('Localizei orientações para VPN, mas elas dependem da versão do Windows. O computador utiliza Windows 10 ou Windows 11?','ASK');
  }
  if(/vpn|erro 809/i.test(combined)&&/windows\s*10/i.test(combined)){
- const kb=await tool('searchKnowledge',trace,()=>await searchKnowledge('VPN erro 809'));trace.policyRules.push('KB_001_WINDOWS_10');
+ const kb=await tool('searchKnowledge',trace,()=>searchKnowledge('VPN erro 809'));trace.policyRules.push('KB_001_WINDOWS_10');
  if(kb[0])return result(`Encontrei o artigo ${kb[0].id}: reinstale o cliente VPN pelo portal corporativo e reinicie o computador. Se já tentou e o erro continua, descreva isso para abrirmos um incidente.`,'ANSWER');
  }
- const duplicate=await tool('findPotentialDuplicates',trace,()=>await findDuplicate(userId,combined,category));
+ const duplicate=await tool('findPotentialDuplicates',trace,()=>findDuplicate(userId,combined,category));
  const sameOpen=duplicate.find(t=>t.status!=='RESOLVIDO');
  if(sameOpen){trace.policyRules.push('NO_DUPLICATE');return result(`Já há um chamado possivelmente relacionado: ${sameOpen.id} — ${sameOpen.title}. Para adicionar informações, escreva “Atualizar ${sameOpen.id}: [nova informação]”. Não criarei outro chamado para o mesmo problema.`, 'ASK',{type:'ticket_selection',ticketIds:[sameOpen.id]});}
  const recentlyResolved=duplicate.find(t=>canReopen(t));if(recentlyResolved){trace.policyRules.push('REOPEN_WITHIN_7_DAYS');return result(`Encontrei ${recentlyResolved.id}, resolvido há menos de sete dias. Podemos reabri-lo em vez de duplicar. Escreva “Reabrir ${recentlyResolved.id}: [informações]”.`,'ASK',{type:'ticket_selection',ticketIds:[recentlyResolved.id]});}
@@ -125,17 +125,17 @@ export async function runAgent(userId:string,conversationId:string,message:strin
  if(facts.affected==='SELF'&&type==='INC'&&!facts.blocked&&!facts.todayDeadline&&!facts.hasWorkaround){trace.missingFields.push('urgency');return result('Você consegue continuar trabalhando por outra alternativa ou está totalmente impedido? Existe compromisso importante ainda hoje?','ASK');}
  const rule=await tool('classifyPriority',trace,()=>priorityFor(facts));trace.policyRules.push(rule.rule,'DRAFT_CONFIRMATION_REQUIRED');
  if(rule.priority==='CRITICA'){
-  await tool('requestHumanHandoff',trace,()=>await handoff(conversationId,userId,'CRITICAL',`Interrupção para equipe/empresa: ${combined.slice(0,500)}`));
+  await tool('requestHumanHandoff',trace,()=>handoff(conversationId,userId,'CRITICAL',`Interrupção para equipe/empresa: ${combined.slice(0,500)}`));
   trace.policyRules.push('CRITICAL_ESCALATION');
   return {...result('Identifiquei impacto sobre uma equipe ou a empresa. A prioridade seria crítica (SLA de 1 hora). Encaminhei a conversa imediatamente para um analista; nenhuma abertura foi feita sem confirmação.','TRANSFER'),transfer:true};
  }
  const title=combined.slice(0,110).trim().replace(/\s+/g,' ');
  const due=await tool('getSla',trace,()=>dueDate(rule.priority,new Date()).toISOString());
- const draft=await tool('createDraft',trace,()=>await createDraft({conversation_id:conversationId,owner_user_id:userId,action:'CREATE',ticket_id:null,title,description:combined,type,category,priority:rule.priority,affected:facts.affected||'UNKNOWN',justification:rule.reason}));
+ const draft=await tool('createDraft',trace,()=>createDraft({conversation_id:conversationId,owner_user_id:userId,action:'CREATE',ticket_id:null,title,description:combined,type,category,priority:rule.priority,affected:facts.affected||'UNKNOWN',justification:rule.reason}));
  return result(`Rascunho ${draft.id}: ${type} · ${category} · ${PRIORITY_LABELS[rule.priority]}. ${rule.reason}. Prazo previsto para a próxima resposta: ${new Date(due).toLocaleString('pt-BR')}. Confirme os dados para criar o chamado. Nenhum chamado foi aberto ainda.`, 'PROPOSE_DRAFT',{type:'draft',draftId:draft.id});
  }
  trace.confidenceLabel='LOW';trace.policyRules.push('LOW_CONFIDENCE_ESCALATION');
- await tool('requestHumanHandoff',trace,()=>await handoff(conversationId,userId,'LOW_CONFIDENCE',`Não foi possível classificar com segurança: ${message.slice(0,350)}`));return {...result('Não consegui determinar com segurança o encaminhamento. Transferi para um analista, com o contexto desta conversa.','TRANSFER'),transfer:true};
+ await tool('requestHumanHandoff',trace,()=>handoff(conversationId,userId,'LOW_CONFIDENCE',`Não foi possível classificar com segurança: ${message.slice(0,350)}`));return {...result('Não consegui determinar com segurança o encaminhamento. Transferi para um analista, com o contexto desta conversa.','TRANSFER'),transfer:true};
  }catch(error){
  if(error instanceof DomainError){if(error.code==='TICKET_SERVICE_UNAVAILABLE'){trace.policyRules.push('LEGACY_SERVICE_OUTAGE');trace.decision='ANSWER';trace.justification='O serviço simulado de chamados está indisponível; nenhuma operação foi confirmada';return baseResult('O serviço de chamados está indisponível no momento. Não fiz nenhuma alteração. Tente novamente em instantes.',trace)}if(error.code==='NOT_FOUND'){trace.decision='REFUSE';trace.policyRules.push('OWNERSHIP');return baseResult('Não encontrei esse chamado entre os seus registros.',trace)}}
  throw error;
