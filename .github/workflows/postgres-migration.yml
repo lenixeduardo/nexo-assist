@@ -6,8 +6,27 @@ on:
     branches: [feat/postgres-vercel-migration]
   workflow_dispatch:
 jobs:
-  check:
+  postgres-integration:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres-test-only
+          POSTGRES_DB: nexo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres-test-only@localhost:5432/nexo_test
+      PGSSL_DISABLE: 'true'
+      NODE_ENV: test
+      APP_SESSION_SECRET: test-only-session-secret-longer-than-32-characters
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,9 +34,15 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Initialize isolated schema
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN;"
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/001_postgres.sql
       - name: Typecheck
         run: npm run typecheck
       - name: Build
         run: npm run build
-      - name: Tests
-        run: npm test
+      - name: PostgreSQL integration tests
+        run: node --test tests/postgres-integration.test.mjs
+      - name: PostgreSQL smoke test
+        run: npm run smoke:postgres
