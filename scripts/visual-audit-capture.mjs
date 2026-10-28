@@ -5,7 +5,7 @@ mkdirSync('artifacts/visual-audit',{recursive:true});
 const browser=await chromium.launch({headless:true});
 for(const [name,width,height] of [['desktop',1440,900],['mobile',390,844]]){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
- const res=await page.goto('https://nexo-assist-self.vercel.app/',{waitUntil:'networkidle',timeout:45000});
+ const res=await page.goto(process.env.VISUAL_BASE_URL || 'https://nexo-assist-self.vercel.app/',{waitUntil:'networkidle',timeout:45000});
  await page.locator('.login-screen').waitFor({timeout:12000});
  await page.evaluate(()=>document.fonts.ready);
  const metrics=await page.evaluate(()=>{
