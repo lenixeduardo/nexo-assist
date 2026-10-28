@@ -1,0 +1,162 @@
+{
+  "source": "docs/nexo.pen",
+  "version": "2.21",
+  "colors": {
+    "bg": "#FCFCFC",
+    "surface": "#FFFFFF",
+    "card": "#F5F5F5",
+    "card-strong": "#EDEDED",
+    "fg": "#0B0B0B",
+    "muted": "#636363",
+    "subtle": "#8E8E8E",
+    "border": "#0B0B0B14",
+    "border-strong": "#0B0B0B24",
+    "primary": "#0285F7",
+    "primary-hover": "#0071D6",
+    "primary-soft": "#0285F712",
+    "primary-text": "#0069C7",
+    "success": "#00BD6C",
+    "success-soft": "#00BD6C14",
+    "success-text": "#00804A",
+    "warning": "#F5A500",
+    "warning-soft": "#F5A50018",
+    "warning-text": "#946300",
+    "danger": "#EE343B",
+    "danger-soft": "#EE343B12",
+    "danger-text": "#C4161D",
+    "violet": "#A37AFF",
+    "violet-soft": "#A37AFF16",
+    "violet-text": "#6B3FE0",
+    "paper": "#FFFFFF",
+    "desk": "#F6F7F9",
+    "ink": "#1B2431",
+    "ink-2": "#3D4656",
+    "ink-3": "#5B6472",
+    "rule": "#E6E8EC",
+    "cta": "#0062C4"
+  },
+  "screens": [
+    {
+      "name": "Identificação (desktop)",
+      "width": 1440,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Showcase",
+          "width": 800,
+          "fill": "$ink"
+        },
+        {
+          "name": "Sign In",
+          "width": "fill_container",
+          "fill": null
+        }
+      ]
+    },
+    {
+      "name": "Chat — Novo chamado (desktop)",
+      "width": 1440,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Sidebar",
+          "width": 232,
+          "fill": null
+        },
+        {
+          "name": "Main",
+          "width": "fill_container",
+          "fill": null
+        }
+      ]
+    },
+    {
+      "name": "Chat — Consulta e transferência (desktop)",
+      "width": 1440,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Sidebar",
+          "width": 232,
+          "fill": null
+        },
+        {
+          "name": "Main",
+          "width": "fill_container",
+          "fill": null
+        }
+      ]
+    },
+    {
+      "name": "Atendente — Conversas (desktop)",
+      "width": 1440,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Rail",
+          "width": 64,
+          "fill": "$desk"
+        },
+        {
+          "name": "Chat List",
+          "width": 380,
+          "fill": null
+        },
+        {
+          "name": "Conversation",
+          "width": "fill_container",
+          "fill": "#EEF1F5"
+        },
+        {
+          "name": "Ticket History",
+          "width": 340,
+          "fill": "$paper"
+        }
+      ]
+    },
+    {
+      "name": "Atendente — Atendimento assumido (desktop)",
+      "width": 1567,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Rail",
+          "width": 64,
+          "fill": "$desk"
+        },
+        {
+          "name": "Chat List",
+          "width": 380,
+          "fill": null
+        },
+        {
+          "name": "Conversation",
+          "width": "fill_container",
+          "fill": "#EEF1F5"
+        },
+        {
+          "name": "Ticket History",
+          "width": 340,
+          "fill": "$paper"
+        }
+      ]
+    },
+    {
+      "name": "Cliente — Meu perfil (desktop)",
+      "width": 1440,
+      "height": 900,
+      "columns": [
+        {
+          "name": "Sidebar",
+          "width": 232,
+          "fill": null
+        },
+        {
+          "name": "Main",
+          "width": "fill_container",
+          "fill": null
+        }
+      ]
+    }
+  ]
+}
