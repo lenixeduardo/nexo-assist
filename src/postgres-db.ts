@@ -6,7 +6,8 @@ import {DomainError} from './types.js';
 import {canReopen,sameProblem,inferFacts,priorityFor} from './policy.js';
 const iso=()=>new Date().toISOString();
 const dt=(v:unknown):string|null=>v==null?null:v instanceof Date?v.toISOString():String(v);
-function dates<T>(v:T):T {\n const row=v as Record<string,unknown>;
+function dates<T>(v:T):T {
+ const row=v as Record<string,unknown>;
  for(const key of ['opened_at','last_updated_at','resolved_at','created_at','updated_at']){
   if(key in row && row[key]!=null)row[key]=dt(row[key]);
  }
