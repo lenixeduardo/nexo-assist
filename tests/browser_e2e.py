@@ -49,7 +49,8 @@ def send(page,text):
  page.wait_for_function('document.querySelector("#send-form button[type=submit]") && !document.querySelector("#send-form button[type=submit]").disabled',timeout=20000)
 
 with tempfile.TemporaryDirectory(prefix='nexo-browser-') as temp:
- port=freeport();env={**os.environ,'PORT':str(port),'DB_PATH':str(Path(temp)/'nexo.sqlite'),'USE_MASTRA':'false'}
+ if os.environ.get('NEXO_ISOLATED_TEST_DB') != 'true': raise RuntimeError('Browser test requires NEXO_ISOLATED_TEST_DB=true and isolated DATABASE_URL')
+  port=freeport();env={**os.environ,'PORT':str(port),'USE_MASTRA':'false'}
  proc=subprocess.Popen(['node','--disable-warning=ExperimentalWarning','dist/server.js'],cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
  try:
   for _ in range(50):

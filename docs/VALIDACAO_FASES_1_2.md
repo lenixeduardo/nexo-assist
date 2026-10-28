@@ -3,8 +3,8 @@
 ## Escopo implementado
 
 1. `src/mastra.ts` usa as APIs oficiais `Agent` e `createTool` quando o runtime está instalado e `USE_MASTRA=true`. O modelo recebe contexto das mensagens e pode executar cinco ferramentas reais de leitura: `search-knowledge`, `list-my-tickets`, `get-my-ticket`, `find-potential-duplicates` e `assess-service-desk-policy`.
-2. As ferramentas leem SQLite/service desk reais da aplicação, não uma resposta de exemplo. Suas ações são limitadas ao usuário autenticado. Mutação de chamados continua exclusivamente no backend após rascunho e confirmação.
-3. `src/audit.ts` mantém `agent_runs` e `agent_audit_events` no SQLite. Cada execução registra `traceId`, modo, modelo, digest da entrada, resultado/falha, timestamps, ordem (`seq`), duração, chamada e resposta de ferramenta, recursos, decisão e justificativas. Dados são limitados e filtrados antes da gravação. Não são guardadas chaves nem prompt bruto da mensagem como input auditado.
+2. As ferramentas leem banco de testes legado/service desk reais da aplicação, não uma resposta de exemplo. Suas ações são limitadas ao usuário autenticado. Mutação de chamados continua exclusivamente no backend após rascunho e confirmação.
+3. `src/postgres-audit.ts` mantém `agent_runs` e `agent_audit_events` no banco de testes legado. Cada execução registra `traceId`, modo, modelo, digest da entrada, resultado/falha, timestamps, ordem (`seq`), duração, chamada e resposta de ferramenta, recursos, decisão e justificativas. Dados são limitados e filtrados antes da gravação. Não são guardadas chaves nem prompt bruto da mensagem como input auditado.
 4. A resposta do chat inclui `trace.traceId`. O endpoint autenticado `GET /api/conversations/:id/audit` permite acompanhar a trilha, e o chat oferece `Ver trilha detalhada`.
 5. O resultado do modelo é validado em JSON estrito. Em status, conhecimento e abertura, a classificação de alta/média confiança só é aceita se as ferramentas obrigatórias forem executadas com sucesso. Falhas não são convertidas silenciosamente em êxitos. LOW faz escalonamento seguro (exceto handoff explícito/fora de escopo).
 
