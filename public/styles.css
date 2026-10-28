@@ -86,3 +86,35 @@ h1,h2,h3{letter-spacing:normal}
 @media(max-width:1439px) and (min-width:1151px){.analyst-shell{grid-template-columns:64px 330px minmax(300px,1fr) 300px}}
 @media(max-width:1150px){.analyst-shell{grid-template-columns:56px 270px minmax(350px,1fr)}.analyst-right{display:none}.analyst-main .topbar{height:64px}.login-showcase{padding:35px;min-height:660px}.login-showcase .brand:after{top:59px;left:35px}.login-right{padding:35px}}
 @media(max-width:760px){.login-screen{grid-template-columns:1fr}.login-showcase{min-height:300px;padding:26px 24px 30px}.login-showcase .brand:after{top:49px;left:24px;font-size:11px}.login-showcase .showcase-main h1{font-size:32px;line-height:1.04;margin:0 0 12px}.login-showcase .showcase-main>p{font-size:13px}.demo-chat,.showcase-foot{display:none}.login-right{min-height:560px;padding:28px 24px}.login-form-container{margin:35px auto}.login-form-container h2{font-size:36px}.login-foot{font-size:11px}.shell{grid-template-columns:1fr}.topbar{height:64px;padding:12px 17px}.analyst-shell{grid-template-columns:56px minmax(0,1fr)}.rail{grid-row:1/3}.analyst-main .topbar{height:64px}}
+
+
+/* Pencil fidelity pass 2: precise editorial scale, form rhythm and icon alignment. */
+@media (min-width:1151px){
+.login-showcase .showcase-main h1{font-size:54px;line-height:1.08;letter-spacing:-.45px;max-width:672px;margin:0 0 18px}
+.login-showcase .showcase-main>p{font-size:16px;line-height:1.5;max-width:520px}
+.login-showcase .demo-chat{margin-top:36px}
+.login-right .login-form-container{width:380px;max-width:100%}
+.login-right .login-form-container h2{font-size:40px;line-height:1.15;margin:0 0 8px}
+.login-right .login-form-container>p{font-size:15.5px;line-height:1.5;margin:0}
+.login-right .login-form-container form{margin-top:28px}
+.login-right .login-form-container .field{margin:0 0 18px}
+.login-right .login-form-container .field .label{font-size:13.5px}
+.login-right .login-form-container .remember-label{margin:2px 0 28px;gap:9px;font-size:13.5px}
+.login-right .login-form-container .btn.primary{font-size:15.5px}
+.login-right .login-help{font-size:13.5px}
+}
+.login-showcase .brand{font-weight:700}
+.login-showcase .brand:after{pointer-events:none}
+.login-form-container .field{display:flex;flex-direction:column;gap:8px}
+.login-form-container .field .flex.space{display:flex;align-items:center;justify-content:space-between}
+.login-form-container .field .input-with-icon{display:flex;align-items:center;position:relative}
+.login-form-container .field .input-with-icon input{width:100%;padding-left:42px;padding-right:40px}
+.login-form-container .field .input-with-icon .field-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#5b6472;pointer-events:none}
+.login-form-container .field .input-with-icon .field-icon svg{display:block;width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.login-form-container .field .input-with-icon .password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:6px;background:transparent;color:#5b6472;display:grid;place-items:center;cursor:pointer}
+.login-form-container .field .input-with-icon .password-toggle svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.login-form-container .field .input-with-icon .password-toggle:hover{background:#eef2f7}
+.login-form-container .btn.primary .button-arrow{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
+.login-form-container .btn.primary .button-arrow svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.login-form-container .btn.primary{display:flex;align-items:center;justify-content:center}
+@media(max-width:760px){.login-showcase .showcase-main h1{font-size:32px;line-height:1.04}.login-form-container .field{gap:8px}.login-form-container .field .input-with-icon input{padding-left:42px}}
