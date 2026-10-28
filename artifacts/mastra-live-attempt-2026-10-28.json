@@ -1,0 +1,61 @@
+{
+  "startedAt": "2026-10-28T12:00:02.286264+00:00",
+  "url": "https://nexo-assist-self.vercel.app",
+  "checks": [
+    {
+      "name": "employee and analyst authenticated",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "demo fixtures available",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "real other-owner ticket denied",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "name": "real Mastra response",
+      "passed": false,
+      "detail": {
+        "intent": "UNCLEAR",
+        "extractedFacts": {
+          "agentMode": "mastra-error",
+          "errorCategory": "MODEL_OR_RUNTIME_FAILURE"
+        },
+        "missingFields": [],
+        "actions": [],
+        "policyRules": [
+          "MODEL_FAILURE_NO_SILENT_FALLBACK"
+        ],
+        "confidenceLabel": "LOW",
+        "justification": "Falha temporária na interpretação, sem mutação",
+        "decision": "ANSWER",
+        "traceId": "458e3d7e-7c56-4e3a-a827-dc4f53a33b44"
+      }
+    }
+  ],
+  "traces": [
+    {
+      "traceId": "458e3d7e-7c56-4e3a-a827-dc4f53a33b44",
+      "intent": "UNCLEAR",
+      "decision": "ANSWER",
+      "mode": "mastra-error"
+    }
+  ],
+  "conversations": [
+    "ab8fb33c-48d7-4916-9797-42f18f9a50eb"
+  ],
+  "error": "real Mastra response: {'intent': 'UNCLEAR', 'extractedFacts': {'agentMode': 'mastra-error', 'errorCategory': 'MODEL_OR_RUNTIME_FAILURE'}, 'missingFields': [], 'actions': [], 'policyRules': ['MODEL_FAILURE_NO_SILENT_FALLBACK'], 'confidenceLabel': 'LOW', 'justification': 'Falha temporária na interpretação, sem mutação', 'decision': 'ANSWER', 'traceId': '458e3d7e-7c56-4e3a-a827-dc4f53a33b44'}",
+  "finishedAt": "2026-10-28T12:01:08.049740+00:00",
+  "providerError": {
+    "status": 403,
+    "code": "customer_verification_required",
+    "message": "Vercel AI Gateway requires a valid card on the account before requests can be served."
+  },
+  "deployment": "dpl_48iErdn7GBSdgLJwt7CRZfv6QJXf",
+  "traceId": "458e3d7e-7c56-4e3a-a827-dc4f53a33b44"
+}

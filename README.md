@@ -2,7 +2,7 @@
 
 Service desk em português com chat de triagem, chamados simulados, confirmação explícita, transferência humana, console do analista e auditoria persistente.
 
-**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra é uma integração opcional. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
+**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM é o caminho exigido pelo desafio; sua implementação está integrada ao AI Gateway, com ativação produtiva bloqueada pela verificação de cobrança da conta Vercel. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
 
 **Produção:** https://nexo-assist-self.vercel.app/
 
@@ -40,7 +40,7 @@ npm test
 npm run smoke:postgres
 ```
 
-`npm test` exige `DATABASE_URL` e o esquema de teste criado. O workflow `.github/workflows/postgres-migration.yml` provisiona PostgreSQL 16 isolado, aplica a migração e executa testes de domínio, persistência, HTTP e conexão. `.github/workflows/ci.yml` verifica build, tipos e regras de negócio. Testes de navegador legados não comprovam o deploy atual.
+`npm test` exige `DATABASE_URL` e o esquema de teste criado. O workflow `.github/workflows/postgres-migration.yml` provisiona PostgreSQL 16 isolado, aplica a migração e executa testes de domínio, persistência, HTTP e conexão. `.github/workflows/ci.yml` verifica build, tipos e regras de negócio. A suíte atual inclui `tests/annex-a.acceptance.test.mjs`, cobrindo todos os itens do Anexo A em PostgreSQL real. Testes de navegador legados não comprovam o deploy atual.
 
 A validação real de produção está documentada em [docs/VALIDACAO_PRODUCAO_2026-10-28.md](docs/VALIDACAO_PRODUCAO_2026-10-28.md), com a relação de verificações e limites da evidência. O resultado de um smoke HTTP não equivale a validar visualmente todas as telas, responsividade ou a integração com um LLM real.
 
@@ -55,7 +55,7 @@ Configure no ambiente Production:
 - `APP_SESSION_SECRET`: segredo aleatório com pelo menos 32 caracteres.
 - `APP_AUTH_USERS_JSON`: objeto `{ "email": "scrypt:SALT_HEX:HASH_HEX" }`; salt de 16 bytes decodificado de hex, derivação de 64 bytes com N=16384, r=8, p=1.
 - `NODE_ENV=production`; `SEED_DEMO_TICKETS=true` apenas para dados demonstrativos.
-- `USE_MASTRA=false` para o modo determinístico validado. A ativação de Mastra requer configuração e smoke real separado.
+- `USE_MASTRA=true`, `MASTRA_PROVIDER=gateway`, `MASTRA_MODEL=openai/gpt-4.1-mini` para Mastra real com OIDC do deploy. Enquanto o Gateway exigir verificação de cobrança, o deploy público conserva `USE_MASTRA=false` para manter a demonstração funcional; esse modo não atende ao requisito de LLM.
 
 Após qualquer mudança nas variáveis, crie um novo deploy. Não publique segredos no código, logs ou relatório. O domínio público canônico acima difere dos aliases de preview protegidos por Vercel Authentication.
 
@@ -82,3 +82,27 @@ O limite é de 30 mensagens do funcionário por sessão ativa com o agente. Prio
 - `migrations/README.md` e `docs/postgres-testing.md`: migração e testes.
 
 O modo determinístico não comprova a execução real do Mastra com provedor LLM. A comparação pixel-perfect nativa com Pencil e a revisão visual completa desktop/mobile permanecem separadas. Autenticação corporativa/SSO, retenção de auditoria e operação em escala ficam fora deste protótipo.
+
+## Mastra + LLM: configuração e aceitação
+
+Mastra `1.79.0`, Zod `4.6.7` e Gateway `3.0.125` são dependências obrigatórias, com `package-lock.json`. Os imports são estáticos para a Vercel incluir o runtime. O smoke atual usa os módulos PostgreSQL e aguarda todas as escritas de auditoria.
+
+Modelo selecionado: `openai/gpt-4.1-mini`, confirmado no catálogo do Gateway em 28/10/2026. Foi mantido por suportar ferramentas e saída estruturada, com custo baixo para classificação curta (catálogo: US$0,40 por milhão de tokens de entrada e US$1,60 de saída). O domínio continua responsável por prioridade, propriedade e mutações confirmadas. O agente limita o histórico a seis mensagens, quatro passos, 500 tokens de saída por chamada e 45 segundos por execução; uso e tempo são auditados.
+
+Na Vercel, OIDC evita guardar chave de provedor. Fora da Vercel, configure `AI_GATEWAY_API_KEY`. Para provedor OpenAI direto, use `MASTRA_PROVIDER=openai` e `OPENAI_API_KEY`, somente em variáveis privadas.
+
+```bash
+# Banco isolado e credenciais configurados em .env
+npm ci
+npm run build
+npm run smoke:mastra
+
+# Teste HTTPS: as duas senhas devem estar no ambiente, nunca no repositório.
+python scripts/production-acceptance.py
+```
+
+O teste HTTPS exige Mastra real por padrão, falha se receber fallback determinístico e verifica chamadas do modelo, ferramentas e uso persistido. `NEXO_SMOKE_ONLY=true` reduz a execução a login, fixtures, isolamento e consulta auditada. `NEXO_REQUIRE_MASTRA=false` permite testar explicitamente apenas a demonstração; o relatório registra essa distinção. A execução completa confirma atualização e reabertura dos fixtures e escreve conversas sintéticas. Use ambiente de homologação quando desejar preservar o estado inicial dos exemplos.
+
+**Bloqueio comprovado:** uma requisição real do deploy alcançou o Gateway e recebeu `403 customer_verification_required` (cartão válido necessário na conta). Não houve geração bem-sucedida ou tokens que comprovem uso do LLM. Após liberar a conta, ativar `USE_MASTRA=true`, fazer novo deploy e repetir o teste com a exigência padrão de Mastra.
+
+Ver [aceitação do Anexo A](docs/ACEITACAO_ANEXO_A.md). O deploy não constitui aprovação integral do desafio enquanto esse smoke real não passar.
