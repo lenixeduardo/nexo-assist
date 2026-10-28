@@ -1,7 +1,7 @@
 name: Nexo visual audit screenshots
 on:
   push:
-    branches: [fix/nexo-login-pixel-fidelity-pass2]
+    branches: [fix/nexo-pencil-login-pass3-20261028]
   workflow_dispatch:
 permissions:
   contents: read
