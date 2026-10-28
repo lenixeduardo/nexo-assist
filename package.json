@@ -17,7 +17,7 @@
     "start:env": "node --env-file=.env --disable-warning=ExperimentalWarning dist/server.js",
     "smoke:mastra": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/mastra-live-smoke.mjs",
     "test:e2e": "python tests/browser_e2e.py",
-    "db:check": "node dist/db-check.js"
+    "smoke:postgres": "node scripts/postgres-smoke.mjs"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
