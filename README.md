@@ -2,7 +2,7 @@
 
 Service desk em português com chat de triagem, chamados simulados, confirmação explícita, transferência humana, console do analista e auditoria persistente.
 
-**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM é o caminho exigido pelo desafio; sua implementação usa a API direta NVIDIA com modelo Mistral. A chave foi cadastrada, mas a NVIDIA recusou as chamadas reais com 404 Not found for account. A ativação produtiva aguarda correção da chave ou do acesso na conta NVIDIA. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
+**Stack atual:** Node.js 22.18+, TypeScript estrito, PostgreSQL, HTML/CSS/JS. Mastra + LLM usa agora a API direta da Mistral AI, com `mistral/mistral-small-latest`. A configuração está preparada; falta cadastrar `MISTRAL_API_KEY` em Production para executar a inferência real. O caminho ativo `src/server.ts` utiliza PostgreSQL; os módulos SQLite e alguns arquivos de `dist/` no histórico são legados. Compile antes de executar.
 
 **Produção:** https://nexo-assist-self.vercel.app/
 
@@ -55,7 +55,7 @@ Configure no ambiente Production:
 - `APP_SESSION_SECRET`: segredo aleatório com pelo menos 32 caracteres.
 - `APP_AUTH_USERS_JSON`: objeto `{ "email": "scrypt:SALT_HEX:HASH_HEX" }`; salt de 16 bytes decodificado de hex, derivação de 64 bytes com N=16384, r=8, p=1.
 - `NODE_ENV=production`; `SEED_DEMO_TICKETS=true` apenas para dados demonstrativos.
-- `USE_MASTRA=true`, `MASTRA_PROVIDER=nvidia`, `MASTRA_MODEL=nvidia/nvidia/nemotron-3-super-120b-a12b` e `NVIDIA_API_KEY` como segredo para Mastra real direto. Enquanto a API NVIDIA recusar a inferência, o deploy conserva `USE_MASTRA=false`; esse modo não atende ao requisito de LLM.
+- `USE_MASTRA=true`, `MASTRA_PROVIDER=mistral`, `MASTRA_MODEL=mistral/mistral-small-latest` e `MISTRAL_API_KEY` como segredo para Mastra real direto. Até cadastrar a chave Mistral, o deploy conserva `USE_MASTRA=false`; esse modo não atende ao requisito de LLM.
 
 Após qualquer mudança nas variáveis, crie um novo deploy. Não publique segredos no código, logs ou relatório. O domínio público canônico acima difere dos aliases de preview protegidos por Vercel Authentication.
 
@@ -83,20 +83,18 @@ O limite é de 30 mensagens do funcionário por sessão ativa com o agente. Prio
 
 O modo determinístico não comprova a execução real do Mastra com provedor LLM. A comparação pixel-perfect nativa com Pencil e a revisão visual completa desktop/mobile permanecem separadas. Autenticação corporativa/SSO, retenção de auditoria e operação em escala ficam fora deste protótipo.
 
-## Mastra + LLM: NVIDIA direta
+## Mastra + LLM: Mistral AI direta
 
-O caminho atual usa o roteador nativo do Mastra `1.79.0`, com `MASTRA_PROVIDER=nvidia`, `MASTRA_MODEL=nvidia/nvidia/nemotron-3-super-120b-a12b` e `NVIDIA_API_KEY` como segredo. A chave é enviada somente ao endpoint NVIDIA `https://integrate.api.nvidia.com/v1`. Não há dependência de AI Gateway, token OIDC ou créditos da Vercel para inferência. A biblioteca @ai-sdk/gateway foi removida.
+O caminho atual usa o roteador nativo do Mastra `1.79.0`, com `MASTRA_PROVIDER=mistral`, `MASTRA_MODEL=mistral/mistral-small-latest` e `MISTRAL_API_KEY` como segredo. O endpoint é `https://api.mistral.ai/v1`. A credencial NVIDIA não autentica a API Mistral. Não há AI Gateway ou OIDC para inferência.
 
-NVIDIA Nemotron 3 Super foi selecionado no catálogo vivo para uso de ferramentas. Os endpoints Mistral testados retornaram 410 (retirado) e 404 (indisponível para a conta). O endpoint Nemotron também retornou 404 Not found for account. Listar um modelo não comprova acesso de inferência. Disponibilidade, quota e cobrança dependem da conta NVIDIA; não há promessa de uso gratuito.
-
-A auditoria mantém modelo, provedor de inferência, chamadas/resultados de ferramentas, uso retornado, duração e decisão. Nenhum valor de credencial é registrado. Há limite de quatro passos, 500 tokens por resposta do modelo e 45 segundos por chamada generate. Nemotron usa enable_thinking=false e a amostragem recomendada pelo fornecedor. As mutações continuam somente após confirmação do funcionário.
+A auditoria mantém modelo, provedor, ferramentas, uso retornado, duração e decisão. Valores de credenciais são removidos. Há limite de quatro passos, 500 tokens de saída por chamada de modelo e 45 segundos por generate. As mutações continuam somente após confirmação do funcionário.
 
 ### Ativar no deploy
 
-Na Vercel, no projeto nexo-assist, Settings → Environment Variables, cadastrar **NVIDIA_API_KEY** como **Sensitive/Secret**, ambiente **Production**. Depois ativar USE_MASTRA=true e fazer novo deploy. Nunca colocar a chave no código ou em mensagens de chat. As configurações não secretas de provedor e modelo já ficam preparadas.
+Na Vercel, projeto nexo-assist, Settings → Environment Variables, cadastrar **MISTRAL_API_KEY** como **Sensitive/Secret**, ambiente **Production**, usando uma chave do Mistral Studio. Depois ativar USE_MASTRA=true e fazer novo deploy. Nunca colocar a chave no código ou em mensagens de chat. Provedor e modelo ficam preparados. Disponibilidade, quota e cobrança dependem da conta Mistral.
 
 ```bash
-# Local: configurar banco isolado e NVIDIA_API_KEY em .env
+# Local: configurar banco isolado e MISTRAL_API_KEY em .env
 npm ci
 npm run build
 npm run smoke:mastra
@@ -105,8 +103,8 @@ npm run smoke:mastra
 python scripts/production-acceptance.py
 ```
 
-O teste HTTPS exige Mastra real por padrão, rejeita o modo determinístico e verifica eventos do modelo, ferramentas e uso persistido. NEXO_SMOKE_ONLY=true reduz a execução. NEXO_REQUIRE_MASTRA=false permite testar apenas a demonstração e registra essa distinção. A execução completa altera fixtures de atualização/reabertura e escreve conversas sintéticas; prefira homologação para preservar os exemplos originais.
+O teste HTTPS exige Mastra real por padrão, rejeita o modo determinístico e verifica eventos do modelo, ferramentas e uso persistido. NEXO_SMOKE_ONLY=true reduz a execução. NEXO_REQUIRE_MASTRA=false testa somente a demonstração. A execução completa altera fixtures de atualização/reabertura e escreve conversas sintéticas.
 
-A configuração antiga MASTRA_PROVIDER=gateway é rejeitada. Um modelo de outro provedor também é rejeitado para evitar enviar credenciais a uma rota incompatível. A configuração explícita MASTRA_PROVIDER=openai permanece disponível para uso direto com OPENAI_API_KEY.
+A configuração antiga MASTRA_PROVIDER=gateway é rejeitada. Modelos de outro provedor são rejeitados para evitar rotas incompatíveis. As configurações explícitas NVIDIA e OpenAI permanecem opcionais; o padrão agora é Mistral AI.
 
-**Estado:** chave NVIDIA cadastrada, mas chamadas reais recusadas. Não declarar inferência real aprovada. O bloqueio anterior de cartão no Gateway deixa de fazer parte deste caminho. A validação histórica está em docs/ACEITACAO_ANEXO_A.md; a migração atual está em docs/PROVEDOR_NVIDIA.md.
+**Estado:** implementação e configuração Mistral preparadas; MISTRAL_API_KEY ausente em Production no momento da migração. Inferência real pendente. Evidências históricas NVIDIA permanecem em docs/PROVEDOR_NVIDIA.md e artifacts/nvidia-activation-attempts-2026-10-28.json. A migração atual está em docs/PROVEDOR_MISTRAL.md.

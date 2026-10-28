@@ -11,9 +11,8 @@ import {DomainError} from './types.js';
 import {recordEvent,setRunModel,sha} from './postgres-audit.js';
 import type {Category,Intent,TraceAction} from './types.js';
 
-export type MastraClassification={intent:Intent;confidence:'HIGH'|'MEDIUM'|'LOW';reason:string;toolActions:TraceAction[];model:string;provider:'mastra';upstreamProvider:'nvidia'|'openai';responseDigest:string;toolCalls:number};
+export type MastraClassification={intent:Intent;confidence:'HIGH'|'MEDIUM'|'LOW';reason:string;toolActions:TraceAction[];model:string;provider:'mastra';upstreamProvider:'mistral'|'nvidia'|'openai';responseDigest:string;toolCalls:number};
 const allowed=new Set<Intent>(['KNOWLEDGE_QUESTION','TICKET_STATUS','TICKET_CREATE','TICKET_UPDATE','TICKET_REOPEN','HUMAN_HANDOFF','OUT_OF_SCOPE','UNCLEAR']);
-const MODEL_DEFAULT='openai/gpt-4.1-mini';
 // Mock runtime is injected only by tests and cannot be enabled via an environment variable.
 export type MastraRuntime={Agent:new(spec:any)=>{generate(message:string,options?:any):Promise<{text?:string;usage?:unknown;finishReason?:string}>};createTool:(spec:any)=>any;z:any};
 async function loadRuntime():Promise<MastraRuntime>{return {Agent,createTool,z};}
