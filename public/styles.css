@@ -118,3 +118,14 @@ h1,h2,h3{letter-spacing:normal}
 .login-form-container .btn.primary .button-arrow svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .login-form-container .btn.primary{display:flex;align-items:center;justify-content:center}
 @media(max-width:760px){.login-showcase .showcase-main h1{font-size:32px;line-height:1.04}.login-form-container .field{gap:8px}.login-form-container .field .input-with-icon input{padding-left:42px}}
+
+
+/* Pencil pass 3 — semantic eyebrow and accessible controls; desktop reference 1440x900. */
+.login-showcase .brand:after{content:none}
+.login-showcase .showcase-main{position:relative}
+.login-showcase .showcase-eyebrow{display:block;font-family:'Schibsted Grotesk',Inter,Arial,sans-serif;font-size:13.5px;line-height:1.35;font-weight:500;color:rgba(255,255,255,.55);margin:0 0 18px}
+.login-form-container .forgot{appearance:none;border:0;background:transparent;padding:0;margin:0;color:#0069c7;font-family:inherit;font-size:13.5px;font-weight:500;line-height:1.4;cursor:pointer}
+.login-form-container .forgot:hover{text-decoration:underline}
+.login-form-container .forgot:focus-visible{outline:2px solid #0062c4;outline-offset:3px;border-radius:2px}
+.login-form-container .password-toggle:focus-visible{outline:2px solid #0062c4;outline-offset:2px}
+@media(max-width:760px){.login-showcase .showcase-eyebrow{font-size:11px;margin-bottom:12px}}
