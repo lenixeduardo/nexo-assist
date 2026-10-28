@@ -1,6 +1,6 @@
 # Provedor direto NVIDIA — ativação de 28/10/2026
 
-A chave NVIDIA_API_KEY foi confirmada como Secret em Production, sem ler seu valor. USE_MASTRA=true foi ativado e as chamadas HTTPS reais foram executadas pelo Mastra no deploy. A NVIDIA recusou as três tentativas; não houve inferência bem-sucedida nem uso de tokens comprovado.
+A chave NVIDIA_API_KEY foi confirmada como Secret em Production, sem ler seu valor. USE_MASTRA=true foi ativado e as chamadas HTTPS reais foram executadas pelo Mastra no deploy. A NVIDIA recusou as três tentativas iniciais e a repetição com chave substituída; não houve inferência bem-sucedida nem uso de tokens comprovado.
 
 | Modelo no endpoint NVIDIA | Resultado |
 |---|---|
@@ -24,8 +24,12 @@ A redação da auditoria foi corrigida: métricas numéricas inputTokens/outputT
 
 [CI completo](https://github.com/lenixeduardo/nexo-assist/actions/runs/40688439832): **35/35 testes aprovados**, incluindo PostgreSQL real, Anexo A, provedor direto e redação de segredos. Esse resultado não comprova geração externa.
 
+## Reteste com chave substituída
+
+A alteração do segredo foi confirmada por metadados e publicada no deploy dpl_BE6v54r6jkogtXxXeZ4QVzaevngz. Em 28/10/2026 às 12:43:42 UTC, a inferência real com Nemotron voltou a retornar 404 Function not found for account. Trace 8227fb39-f915-4bf2-90bb-11e62c3262df; request NVIDIA 31b0299f-0d4d-49c7-9442-8494c4106840. Sem inferência aprovada, sem tokens comprovados e sem mutação de tickets.
+
 ## Próximo passo necessário
 
-Gerar ou conferir uma chave de NVIDIA Build com acesso à API hospedada e substituir somente o segredo NVIDIA_API_KEY na Vercel, Production. Não enviar a chave por chat. Se a falha persistir com chave nova, solicitar ao suporte NVIDIA a verificação do acesso a Public API Endpoints.
+Como a falha persistiu após a substituição da chave, solicitar ao suporte NVIDIA a verificação do acesso da conta a Public API Endpoints e ao modelo Nemotron configurado. Informar o horário UTC e o request ID acima, sem enviar a chave por chat. A causa exata de credencial/acesso ainda não foi confirmada pelo provedor.
 
 O modo demonstrativo foi restaurado explicitamente (USE_MASTRA=false) enquanto o bloqueio externo é resolvido. Após corrigir a chave/acesso, ativar USE_MASTRA=true, fazer novo deploy e repetir scripts/production-acceptance.py com a exigência padrão de Mastra. Custos e quotas dependem da conta NVIDIA; nenhuma compra ou alteração financeira foi realizada pelo agente.
