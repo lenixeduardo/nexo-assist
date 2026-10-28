@@ -18,7 +18,13 @@ function connection():pg.Pool {
  try{parsed=new URL(url)}catch{throw new Error('DATABASE_URL must be a valid PostgreSQL URL')}
  if(!['postgres:','postgresql:'].includes(parsed.protocol))throw new Error('DATABASE_URL must use postgres:// or postgresql://');
  if(process.env.NODE_ENV==='production'&&process.env.PGSSL_DISABLE==='true')throw new Error('PGSSL_DISABLE cannot be true in production');
- pool=new Pool({connectionString:url,max:5,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,
+ // The pg connection-string parser can override an explicit ssl object when
+ // sslmode or sslrootcert is present in DATABASE_URL. Keep TLS policy here.
+ parsed.searchParams.delete('sslmode');
+ parsed.searchParams.delete('sslrootcert');
+ parsed.searchParams.delete('sslcert');
+ parsed.searchParams.delete('sslkey');
+ pool=new Pool({connectionString:parsed.toString(),max:5,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,
   ssl:process.env.PGSSL_DISABLE==='true'?false:{rejectUnauthorized:true,...(process.env.PGSSL_CA_PEM?{ca:process.env.PGSSL_CA_PEM.replace(/\\n/g,'\n')}: {})}});
  return pool;
 }
