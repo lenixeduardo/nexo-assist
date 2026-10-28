@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mastraProviderConfig} from '../dist/mastra-provider.js';
-test('defaults to direct NVIDIA with a Mistral model, without Gateway or OIDC',()=>{
- const c=mastraProviderConfig({NVIDIA_API_KEY:'test-only'});assert.equal(c.provider,'nvidia');assert.equal(c.model,'nvidia/mistralai/mistral-large-2-instruct');assert.equal(c.credentialEnv,'NVIDIA_API_KEY');assert.equal(c.configured,true);assert.ok(!JSON.stringify(c).includes('test-only'));
+test('defaults to direct NVIDIA with an available Nemotron model, without Gateway or OIDC',()=>{
+ const c=mastraProviderConfig({NVIDIA_API_KEY:'test-only'});assert.equal(c.provider,'nvidia');assert.equal(c.model,'nvidia/nvidia/nemotron-3-super-120b-a12b');assert.equal(c.credentialEnv,'NVIDIA_API_KEY');assert.equal(c.configured,true);assert.ok(!JSON.stringify(c).includes('test-only'));
 });
 test('missing NVIDIA credential is explicitly reported without substituting another provider',()=>{
  const c=mastraProviderConfig({VERCEL:'1',VERCEL_OIDC_TOKEN:'test-only'});assert.equal(c.configured,false);assert.equal(c.provider,'nvidia');

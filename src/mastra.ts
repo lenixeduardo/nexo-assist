@@ -76,7 +76,7 @@ Depois das ferramentas, responda SOMENTE com JSON: {"intent":"KNOWLEDGE_QUESTION
   const input=JSON.stringify({history:history.slice(-6),message});
   if(traceId)await recordEvent(traceId,'MODEL_CALL','mastra.agent.generate',{input:{model,provider,inputDigest:sha(input),historyMessages:history.length}});
   const start=Date.now();let response:{text?:string;usage?:unknown;finishReason?:string};
-  try{response=await agent.generate(input,{maxSteps:4,abortSignal:AbortSignal.timeout(45000),modelSettings:{temperature:0,maxOutputTokens:500,maxRetries:0}});}
+  try{response=await agent.generate(input,{maxSteps:4,abortSignal:AbortSignal.timeout(45000),providerOptions:provider==='nvidia'&&model.includes('nemotron-3-super')?{nvidia:{chat_template_kwargs:{enable_thinking:false}}}:undefined,modelSettings:{temperature:model.includes('nemotron-3-super')?1:0,...(model.includes('nemotron-3-super')?{topP:0.95}:{}),maxOutputTokens:500,maxRetries:0}});}
   catch(e){if(traceId)await recordEvent(traceId,'MODEL_RESULT','mastra.agent.generate',{outcome:'ERROR',durationMs:Date.now()-start,output:{code:'MODEL_GENERATION_FAILED'}});throw e}
   if(traceId)await recordEvent(traceId,'MODEL_RESULT','mastra.agent.raw-response',{durationMs:Date.now()-start,output:{provider,responseDigest:sha(String(response.text||'')),usage:response.usage??null,finishReason:response.finishReason??null,toolsCalled:[...called]}});
   const parsed=parseStructured(String(response.text||''));
