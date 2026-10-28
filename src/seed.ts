@@ -1,2 +1,2 @@
-import {seed} from './db.js';
-seed();console.log('Usuários, artigos e chamados de demonstração disponíveis.');
+import {seed} from './postgres-db.js';
+await seed();console.log('Usuários e artigos de suporte sincronizados no PostgreSQL.');
