@@ -6,16 +6,16 @@ import {DomainError} from './types.js';
 import {canReopen,sameProblem,inferFacts,priorityFor} from './policy.js';
 const iso=()=>new Date().toISOString();
 const dt=(v:unknown):string|null=>v==null?null:v instanceof Date?v.toISOString():String(v);
-function dates<T extends Record<string,unknown>>(v:T):T {
+function dates<T>(v:T):T {\n const row=v as Record<string,unknown>;
  for(const key of ['opened_at','last_updated_at','resolved_at','created_at','updated_at']){
-  if(key in v && v[key]!=null)v[key]=dt(v[key]);
+  if(key in row && row[key]!=null)row[key]=dt(row[key]);
  }
  return v;
 }
-export const findOne=async <T extends Record<string,unknown>>(sql:string,...args:(string|number|null)[]):Promise<T|undefined>=>{
+export const findOne=async <T>(sql:string,...args:(string|number|null)[]):Promise<T|undefined>=>{
  const row=await one<T>(sql,...args);return row?dates(row):undefined;
 };
-export const findAll=async <T extends Record<string,unknown>>(sql:string,...args:(string|number|null)[]):Promise<T[]>=>{
+export const findAll=async <T>(sql:string,...args:(string|number|null)[]):Promise<T[]>=>{
  return (await query<T>(sql,...args)).map(dates);
 };
 export {transaction};
