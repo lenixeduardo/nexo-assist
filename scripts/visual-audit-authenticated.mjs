@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import {mkdirSync,writeFileSync} from 'node:fs';
 const base=process.env.NEXO_AUDIT_URL||'https://nexo-assist-self.vercel.app/';
+const apiBase=process.env.NEXO_AUDIT_API_URL;
 const credentials=[
  {role:'employee',email:process.env.NEXO_AUDIT_EMPLOYEE_EMAIL,password:process.env.NEXO_AUDIT_EMPLOYEE_PASSWORD},
  {role:'analyst',email:process.env.NEXO_AUDIT_ANALYST_EMAIL,password:process.env.NEXO_AUDIT_ANALYST_PASSWORD}
@@ -12,6 +13,7 @@ async function snap(page,label,selector){await page.locator(selector).first().wa
 for(const c of credentials){
  if(!c.email||!c.password){results.push({role:c.role,status:'not_tested',reason:'Missing protected GitHub Actions audit credentials'});continue;}
  const context=await browser.newContext({viewport:{width:1440,height:900}});
+ if(apiBase){await context.route('**/api/**',route=>{const original=new URL(route.request().url());const target=new URL(original.pathname+original.search,apiBase);return route.continue({url:target.toString()});});}
  const page=await context.newPage();
  try{
   await page.goto(base,{waitUntil:'domcontentloaded',timeout:45000});
