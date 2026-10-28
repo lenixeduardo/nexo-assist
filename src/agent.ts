@@ -51,7 +51,7 @@ function classifyAndContext(message:string,history:string[]){let combined=messag
 }
 export async function runAgent(userId:string,conversationId:string,message:string,traceId?:string):Promise<AgentResult>{
  const c=await getConversation(conversationId,userId);if(c.state!=='AGENT_ACTIVE')throw new DomainError('CONVERSATION_LOCKED','O agente está pausado durante o atendimento humano',409);
- const history=await messagesFor(conversationId).filter(x=>x.role==='USER').slice(-7).map(x=>x.text);
+ const history=(await messagesFor(conversationId)).filter(x=>x.role==='USER').slice(-7).map(x=>x.text);
  const heuristicResult=heuristic(message,history);
  let intent=heuristicResult;const mastra=await mastraClassify(userId,message,history,conversationId,traceId);const model=mastra||(process.env.USE_MASTRA==='true'?null:await llmInfer(message,history));
  if(mastra&&mastra.confidence==='LOW'){
