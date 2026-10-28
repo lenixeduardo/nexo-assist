@@ -33,7 +33,9 @@ function parseStructured(raw:string):{intent:Intent;confidence:'HIGH'|'MEDIUM'|'
 }
 export async function mastraClassify(userId:string,message:string,history:string[],conversationId?:string,traceId?:string,runtimeOverride?:MastraRuntime):Promise<MastraClassification|null>{
  if(process.env.USE_MASTRA!=='true')return null;
- if(!process.env.OPENAI_API_KEY&&!runtimeOverride)throw new Error('MASTRA_CONFIG_ERROR: OPENAI_API_KEY ausente');
+ const provider=(process.env.MASTRA_PROVIDER||'openai').toLowerCase();
+ const requiredKey=provider==='mistral'?'MISTRAL_API_KEY':'OPENAI_API_KEY';
+ if(!process.env[requiredKey]&&!runtimeOverride)throw new Error(`MASTRA_CONFIG_ERROR: ${requiredKey} ausente`);
  const model=process.env.MASTRA_MODEL||MODEL_DEFAULT;
  if(traceId)setRunModel(traceId,model);
  const toolActions:TraceAction[]=[];
