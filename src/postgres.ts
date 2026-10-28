@@ -30,38 +30,37 @@ function qualified(sql:string):string {
  // The search_path is set on every pooled connection, and on transactions.
  return placeholders(sql);
 }
-export async function query<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T[]>{
- const client=context.getStore();
- if(client)return (await client.query(qualified(sql),[...values])).rows as T[];
- const p=connection();
- const c=await p.connect();
+/**
+ * Supavisor transaction pooling does not preserve session settings between requests.
+ * Use SET LOCAL inside an explicit transaction for each operation, so search_path
+ * never leaks to another application sharing this database.
+ */
+async function scoped<T>(fn:(client:pg.PoolClient)=>Promise<T>):Promise<T>{
+ const existing=context.getStore();
+ if(existing)return fn(existing);
+ const client=await connection().connect();
+ let began=false;
  try{
-  await c.query('SET search_path TO nexo, pg_catalog');
-  return (await c.query(qualified(sql),[...values])).rows as T[];
- }finally{c.release()}
+  await client.query('BEGIN');began=true;
+  await client.query('SET LOCAL search_path TO nexo, pg_catalog');
+  const value=await context.run(client,()=>fn(client));
+  await client.query('COMMIT');began=false;
+  return value;
+ }catch(error){
+  if(began)try{await client.query('ROLLBACK')}catch{}
+  throw error;
+ }finally{client.release()}
+}
+export async function query<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T[]>{
+ return scoped(async client=>(await client.query(qualified(sql),[...values])).rows as T[]);
 }
 export async function one<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T|undefined>{
  return (await query<T>(sql,...values))[0];
 }
 export async function execute(sql:string,...values:Params):Promise<number>{
- const client=context.getStore();
- if(client)return (await client.query(qualified(sql),[...values])).rowCount??0;
- const c=await connection().connect();
- try{
-  await c.query('SET search_path TO nexo, pg_catalog');
-  return (await c.query(qualified(sql),[...values])).rowCount??0;
- }finally{c.release()}
+ return scoped(async client=>(await client.query(qualified(sql),[...values])).rowCount??0);
 }
 export async function transaction<T>(fn:()=>Promise<T>):Promise<T>{
- if(context.getStore())return fn();
- const c=await connection().connect();
- try{
-  await c.query('BEGIN');
-  await c.query('SET LOCAL search_path TO nexo, pg_catalog');
-  const value=await context.run(c,fn);
-  await c.query('COMMIT');
-  return value;
- }catch(err){await c.query('ROLLBACK');throw err}
- finally{c.release()}
+ return scoped(async()=>fn());
 }
 export async function closePool(){if(pool){await pool.end();pool=undefined}}
