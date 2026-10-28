@@ -15,7 +15,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright @open-pencil/cli
       - run: npx playwright install --with-deps chromium
-      - run: node scripts/visual-audit-capture.mjs
+      - run: python3 -m http.server 4173 --directory public > /tmp/nexo-static.log 2>&1 &
+      - run: VISUAL_BASE_URL=http://127.0.0.1:4173 node scripts/visual-audit-capture.mjs
       - name: Render six original Pencil frames (when supported)
         continue-on-error: true
         run: |
