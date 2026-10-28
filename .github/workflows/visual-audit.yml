@@ -3,6 +3,7 @@ on:
   push:
     branches: [fix/nexo-goal-95-layout]
   workflow_dispatch:
+# Re-run authenticated visual audit after repository secrets configuration.
 permissions:
   contents: read
 jobs:
