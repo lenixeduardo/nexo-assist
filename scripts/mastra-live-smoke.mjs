@@ -2,8 +2,9 @@
  * Execute only after npm install, with USE_MASTRA=true and OPENAI_API_KEY set.
  */
 import {randomUUID} from 'node:crypto';
-if(process.env.USE_MASTRA!=='true'||!process.env.OPENAI_API_KEY){
- console.error('Configure USE_MASTRA=true e OPENAI_API_KEY antes do smoke live.');process.exit(2);
+const requiredKey=process.env.MASTRA_PROVIDER==='mistral'?'MISTRAL_API_KEY':'OPENAI_API_KEY';
+if(process.env.USE_MASTRA!=='true'||!process.env[requiredKey]){
+ console.error('Configure USE_MASTRA=true e a chave do provedor antes do smoke live.');process.exit(2);
 }
 const {newConversation}=await import('../dist/db.js');
 const {mastraClassify}=await import('../dist/mastra.js');
