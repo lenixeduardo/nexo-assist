@@ -56,6 +56,11 @@ jobs:
           base64 -w0 artifacts/visual-audit/comparison-login.jpg
           echo
           echo VISUAL_IMAGE_COMPARISON_END
+      - name: Compare all six screens with Pencil references
+        if: always()
+        run: |
+          python -m pip install --quiet pillow numpy
+          python scripts/visual-audit-six-screens.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
