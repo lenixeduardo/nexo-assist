@@ -3,12 +3,25 @@ import {createServer,IncomingMessage,ServerResponse} from 'node:http';
 import {readFileSync,existsSync} from 'node:fs';
 import {resolve,extname,dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,scryptSync,timingSafeEqual} from 'node:crypto';
 import {signToken,verifyToken,cookieFor} from './auth.js';
 import {db,getUser,getUserByEmail,listUsers,newConversation,getConversation,conversationsFor,messagesFor,findOne,listMyTickets,getMyTicket,getDraft,confirmDraft,cancelDraft,reviseDraft,analystQueue,analystTransition,analystSend,setOutage,saveMessage,findAll,ensureAnalystAccess} from './db.js';
 import {receiveMessage} from './agent.js';
 import {DomainError} from './types.js';
 import type {User,Ticket,Trace} from './types.js';
+function authenticated(email:string,password:string):boolean{
+ const config=process.env.APP_AUTH_USERS_JSON;
+ if(!config)return process.env.NODE_ENV!=='production';
+ let users:Record<string,string>;
+ try{users=JSON.parse(config) as Record<string,string>}catch{return false}
+ const stored=users[email.trim().toLowerCase()];
+ if(typeof stored!=='string')return false;
+ const parts=stored.split(':');
+ if(parts.length!==3||parts[0]!=='scrypt'||!/^[0-9a-f]{32}$/.test(parts[1]!)||!/^[0-9a-f]{128}$/.test(parts[2]!))return false;
+ const expected=Buffer.from(parts[2]!,'hex');
+ const actual=scryptSync(password,Buffer.from(parts[1]!,'hex'),64,{N:16384,r:8,p:1});
+ return timingSafeEqual(actual,expected);
+}
 const PORT=Number(process.env.PORT||3000);
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../public');
 const types:Record<string,string>={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon'};
@@ -30,8 +43,8 @@ const toMessages=(id:string)=>messagesFor(id).map(m=>({id:m.id,role:m.role,text:
 async function route(req:IncomingMessage,res:ServerResponse){const url=new URL(req.url||'/',`http://${req.headers.host||'localhost'}`);const p=url.pathname,method=req.method||'GET';checkOrigin(req);
  if(p==='/api/health')return json(res,{ok:true,service:'nexo-assist',now:new Date().toISOString()});
  if(p==='/api/login'&&method==='POST'){
- limitLogin(req);if(process.env.NODE_ENV==='production'&&process.env.APP_DEMO_LOGIN!=='true')throw new DomainError('DEMO_LOGIN_DISABLED','Login demonstrativo desabilitado em produção',403);
- const data=await body(req);const email=str(data,'email').trim(),password=str(data,'password');if(!password||password.length>300)throw new DomainError('INVALID_INPUT','Informe uma senha de demonstração');const user=getUserByEmail(email);if(!user)throw new DomainError('UNAUTHORIZED','E-mail não encontrado entre os usuários de demonstração',401);
+ limitLogin(req);if(process.env.NODE_ENV==='production'&&!process.env.APP_AUTH_USERS_JSON)throw new DomainError('AUTH_NOT_CONFIGURED','Autenticação não configurada',503);
+ const data=await body(req);const email=str(data,'email').trim(),password=str(data,'password');if(!password||password.length>300)throw new DomainError('INVALID_INPUT','Informe uma senha de demonstração');const user=getUserByEmail(email);if(!user||!authenticated(email,password))throw new DomainError('UNAUTHORIZED','E-mail ou senha inválidos',401);
  res.setHeader('Set-Cookie',cookieFor(signToken(user.id),process.env.NODE_ENV==='production'));return json(res,{user});}
  if(p==='/api/logout'&&method==='POST'){res.setHeader('Set-Cookie','nexo_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');return json(res,{ok:true})}
  if(!p.startsWith('/api/'))return staticFile(req,res,p);
