@@ -19,7 +19,7 @@ function connection():pg.Pool {
  if(!['postgres:','postgresql:'].includes(parsed.protocol))throw new Error('DATABASE_URL must use postgres:// or postgresql://');
  if(process.env.NODE_ENV==='production'&&process.env.PGSSL_DISABLE==='true')throw new Error('PGSSL_DISABLE cannot be true in production');
  pool=new Pool({connectionString:url,max:5,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,
-  ssl:process.env.PGSSL_DISABLE==='true'?false:{rejectUnauthorized:true}});
+  ssl:process.env.PGSSL_DISABLE==='true'?false:{rejectUnauthorized:true,...(process.env.PGSSL_CA_PEM?{ca:process.env.PGSSL_CA_PEM.replace(/\\n/g,'\n')}: {})}});
  return pool;
 }
 function placeholders(sql:string):string {
