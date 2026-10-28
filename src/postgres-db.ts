@@ -40,8 +40,9 @@ export async function seed(){
  for(const a of articles)await execute('INSERT INTO articles(id,title,body,category,platforms,conditions,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',...a,iso());
  // Demo tickets are opt-in to avoid inserting fake incidents into a production database.
  if(process.env.SEED_DEMO_TICKETS==='true'){
-  const count=await one<{n:number}>('SELECT count(*)::int n FROM tickets');
-  if(!count?.n){
+  // Fill missing fixtures even after users have created their own tickets.
+  // ON CONFLICT preserves existing descriptions, statuses and timestamps.
+  {
    const days=(d:number)=>new Date(Date.now()-d*86400000).toISOString();
    const rows:[string,string,string,string,string,string,string,string,string,string,string,string|null][]=[
     ['INC-20311','u-ana','Notebook lento após atualização do Windows','Lentidão após atualização; reiniciar não resolveu.','INC','Hardware','MEDIA','SELF','AGUARDANDO_ANALISTA',days(8),days(6),null],
