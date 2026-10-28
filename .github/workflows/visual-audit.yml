@@ -13,6 +13,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
       - run: npm install --no-save playwright @open-pencil/cli
       - run: npx playwright install --with-deps chromium
       - run: python3 -m http.server 4173 --directory public > /tmp/nexo-static.log 2>&1 &
