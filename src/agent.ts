@@ -23,7 +23,7 @@ function heuristic(message:string,history:string[]):Inferred{
  if(/(falar com (um |uma )?(analista|atendente|humano|pessoa)|cham(e|ar) (um |uma )?(analista|atendente)|suporte humano|pessoa de verdade|transferir para)/.test(s))return {intent:'HUMAN_HANDOFF',confidence:'HIGH',reason:'Solicitação explícita de atendimento humano'};
  if(/(status|andamento|como est[aá]|situa[cç][aã]o|acompanhar|prazo|vencid[oa]|meus chamados|consulta(r)? chamado)/.test(s)|| (ticketPattern.test(s)&&!/(atuali|reabr|adicione|complement)/.test(s)))return {intent:'TICKET_STATUS',confidence:'HIGH',reason:'Pedido de consulta de chamado'};
  if(/(reabr|reabra|reabrir)/.test(s))return {intent:'TICKET_REOPEN',confidence:'HIGH',reason:'Pedido de reabertura'};
- if(/(atuali|complement|adicione|acrescente|mais informa[cç][aã]o|novo dado)/.test(s))return {intent:'TICKET_UPDATE',confidence:'HIGH',reason:'Complemento de ticket'};
+ if(/\b(atualiz(?:ar|e)|atualis(?:ar|e)|complement(?:ar|e)|adicione|acrescente|mais informa[cç][aã]o|novo dado)\b/.test(s))return {intent:'TICKET_UPDATE',confidence:'HIGH',reason:'Complemento de ticket'};
  if(/(hor[aá]rio (do |de )?(suporte|atendimento|service)|como (configur|resolv|faz|funciona)|passo a passo|orienta[cç][aã]o|o que fa[cç]o|central de ajuda)/.test(s))return {intent:'KNOWLEDGE_QUESTION',confidence:'HIGH',reason:'Pergunta sobre solução ou procedimento'};
  if(/(vpn|notebook|computador|monitor|impressora|teclado|mouse|sap|outlook|e-?mail|email|sistema|rede|wi-?fi|acesso|senha|software|n[aã]o funciona|parou|erro|travando|lento|licen[cç]a|instalar|preciso de)/.test(s))return {intent:'TICKET_CREATE',confidence:'MEDIUM',reason:'Descrição de incidente ou requisição de TI'};
  // Short follow-up to triage after an unresolved prompt.
