@@ -90,5 +90,16 @@ async function route(req:IncomingMessage,res:ServerResponse){await ready;const u
  if(p==='/api/demo/outage'&&method==='POST'){requireAnalyst(u);const b=await body(req);setOutage(Number(b.ms)||5000);return json(res,{ok:true})}
  throw new DomainError('NOT_FOUND','Rota não encontrada',404);
 }
-const server=createServer((req,res)=>{route(req,res).catch(e=>{if(res.headersSent){res.end();return}const err=e instanceof DomainError?e:new DomainError('INTERNAL_ERROR','Erro interno',500);if(!(e instanceof DomainError))console.error(e);json(res,{error:{code:err.code,message:err.message}},err.status)})});
-server.listen(PORT,()=>console.log(`Nexo Assist disponível em http://localhost:${PORT}`));
+export async function handler(req:IncomingMessage,res:ServerResponse):Promise<void>{
+ try{await route(req,res)}catch(e){
+  if(res.headersSent){res.end();return}
+  const err=e instanceof DomainError?e:new DomainError('INTERNAL_ERROR','Erro interno',500);
+  if(!(e instanceof DomainError))console.error(e);
+  json(res,{error:{code:err.code,message:err.message}},err.status);
+ }
+}
+// The Vercel Node function imports this module but must not bind a TCP port.
+if(process.env.VERCEL!=='1'){
+ const server=createServer((req,res)=>{void handler(req,res)});
+ server.listen(PORT,()=>console.log(`Nexo Assist disponível em http://localhost:${PORT}`));
+}
