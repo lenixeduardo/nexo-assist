@@ -24,6 +24,16 @@
       "status": 404,
       "reason": "Function not found for account",
       "traceId": "bbcd5112-bbf6-432c-98f3-dca78757b746"
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "credentialReplaced": true,
+      "testedAt": "2026-10-28T12:43:42Z",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "8227fb39-f915-4bf2-90bb-11e62c3262df",
+      "providerRequestId": "31b0299f-0d4d-49c7-9442-8494c4106840",
+      "deploymentId": "dpl_BE6v54r6jkogtXxXeZ4QVzaevngz"
     }
   ],
   "ci": {
@@ -32,5 +42,6 @@
     "url": "https://github.com/lenixeduardo/nexo-assist/actions/runs/40688439832"
   },
   "mutationsFromLiveTests": 0,
-  "productionModeUntilAccessFixed": "deterministic"
+  "productionModeUntilAccessFixed": "deterministic",
+  "nextAction": "Verify hosted endpoint access with NVIDIA support; repeated key replacement did not resolve the error."
 }
