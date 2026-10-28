@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-28",
+  "codeCommit": "ce33027982239d5de006d00e2467d1390f357aa3",
+  "provider": "nvidia",
+  "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "credentialPresentInProduction": true,
+  "credentialValueIncluded": false,
+  "liveInferencePassed": false,
+  "attempts": [
+    {
+      "model": "mistralai/mistral-large-3-675b-instruct-2512",
+      "status": 410,
+      "reason": "Model retired by provider",
+      "traceId": "1620b9da-c20d-4dcb-899c-959b72557d3c"
+    },
+    {
+      "model": "mistralai/mistral-large-2-instruct",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "b158b788-0cfa-45de-8a37-7fba1516fec3"
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "status": 404,
+      "reason": "Function not found for account",
+      "traceId": "bbcd5112-bbf6-432c-98f3-dca78757b746"
+    }
+  ],
+  "ci": {
+    "passed": 35,
+    "failed": 0,
+    "url": "https://github.com/lenixeduardo/nexo-assist/actions/runs/40688439832"
+  },
+  "mutationsFromLiveTests": 0,
+  "productionModeUntilAccessFixed": "deterministic"
+}

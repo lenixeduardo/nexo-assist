@@ -1,27 +1,31 @@
-# Provedor direto NVIDIA / modelo Mistral
+# Provedor direto NVIDIA — ativação de 28/10/2026
 
-28/10/2026. Migração autorizada do AI Gateway para provedor direto.
+A chave NVIDIA_API_KEY foi confirmada como Secret em Production, sem ler seu valor. USE_MASTRA=true foi ativado e as chamadas HTTPS reais foram executadas pelo Mastra no deploy. A NVIDIA recusou as três tentativas; não houve inferência bem-sucedida nem uso de tokens comprovado.
 
-- Runtime: roteador nativo Mastra 1.79.0.
-- Provedor: nvidia.
-- Modelo: nvidia/mistralai/mistral-large-3-675b-instruct-2512.
-- Endpoint: https://integrate.api.nvidia.com/v1.
-- Credencial privada: NVIDIA_API_KEY, Production, Sensitive/Secret na Vercel.
-- Sem @ai-sdk/gateway, OIDC ou inferência faturada pela Vercel neste caminho.
-- Modelo, provedor, eventos, duração e uso retornado continuam auditados.
+| Modelo no endpoint NVIDIA | Resultado |
+|---|---|
+| mistralai/mistral-large-3-675b-instruct-2512 | 410 Gone: modelo retirado |
+| mistralai/mistral-large-2-instruct | 404: Function not found for account |
+| nvidia/nemotron-3-super-120b-a12b | 404: Function not found for account |
 
-Testes específicos verificam seleção NVIDIA, ausência de credencial, rejeição de configuração antiga Gateway e rejeição de modelo pertencente a outro provedor. A suíte completa do Anexo A permanece ativa.
+O catálogo público GET /v1/models lista os dois últimos modelos. Isso não comprovou disponibilidade na conta para POST /v1/chat/completions. A documentação oficial NVIDIA AI-Q associa 404 Not found for account a chave inválida ou expirada e recomenda gerar uma nova. Também existem relatos de liberação de acesso a endpoints; a permissão específica não foi inspecionada. Não afirmar que a chave está válida apenas por estar cadastrada.
 
-O projeto não possuía NVIDIA_API_KEY no momento da preparação. USE_MASTRA permanece false para preservar o demonstrativo até cadastrar a chave; não foi declarada execução real do LLM. Após cadastrar a chave, ativar USE_MASTRA=true, fazer novo deploy e executar o smoke que exige Mastra real. Nenhuma conta NVIDIA foi criada e nenhuma condição de cobrança foi aceita pelo agente.
+- Documentação oficial: https://docs.nvidia.com/aiq-blueprint/2.2.1/resources/troubleshooting.html
+- Geração da chave: https://docs.api.nvidia.com/nim/docs/api-quickstart
+- Evidências sem segredos: artifacts/nvidia-activation-attempts-2026-10-28.json
 
-Fontes técnicas verificadas:
-- https://mastra.ai/models/providers/nvidia
-- https://docs.api.nvidia.com/nim/reference/mistralai-mistral-large-3-675b-instruct-2512
+## Código e auditoria
 
-A documentação NVIDIA confirma suporte a português, function calling e JSON. A autorização, disponibilidade, quota e condições financeiras da conta precisam ser verificadas pelo titular; não há promessa de uso gratuito.
+Roteador nativo do Mastra 1.79.0, endpoint fixo https://integrate.api.nvidia.com/v1, sem AI Gateway nem OIDC para inferência. Modelo configurado atualmente: nvidia/nvidia/nemotron-3-super-120b-a12b. Para esse modelo, reasoning desativado e temperature/top_p conforme documentação NVIDIA. Limites: quatro passos, 500 tokens de saída por chamada e timeout de 45s para generate.
 
-## Verificação desta migração
+As tentativas foram registradas como FAILED com MODEL_CALL, MODEL_RESULT/ERROR e MODEL_FAILURE_NO_SILENT_FALLBACK. Nenhum ticket foi criado ou atualizado nas tentativas. Não houve aprovação indevida por heurística.
 
-Commit: c406483afb91a099f90f6f1e0028f30d1b698960. CI completo em PostgreSQL real: https://github.com/lenixeduardo/nexo-assist/actions/runs/40686533051 — aprovado, incluindo o Anexo A e os testes de seleção de provedor. Build e 15 testes focados locais aprovados; diff sem erros de whitespace.
+A redação da auditoria foi corrigida: métricas numéricas inputTokens/outputTokens/totalTokens são preservadas; tokens de autenticação e chaves NVIDIA/OpenAI são removidos, inclusive se estiverem embutidos em texto. Dois testes falharam antes da correção e passaram após ela.
 
-Deploy dpl_EdfLdmVXr1JWFE4gwoakMaQz2Vw6 em estado READY. GET https://nexo-assist-self.vercel.app/api/health retornou ok=true após a publicação. A execução NVIDIA real não foi tentada sem credencial: faltava NVIDIA_API_KEY no projeto. Essa verificação de infraestrutura não equivale à aprovação da inferência ou do tool calling do modelo.
+[CI completo](https://github.com/lenixeduardo/nexo-assist/actions/runs/40688439832): **35/35 testes aprovados**, incluindo PostgreSQL real, Anexo A, provedor direto e redação de segredos. Esse resultado não comprova geração externa.
+
+## Próximo passo necessário
+
+Gerar ou conferir uma chave de NVIDIA Build com acesso à API hospedada e substituir somente o segredo NVIDIA_API_KEY na Vercel, Production. Não enviar a chave por chat. Se a falha persistir com chave nova, solicitar ao suporte NVIDIA a verificação do acesso a Public API Endpoints.
+
+O modo demonstrativo foi restaurado explicitamente (USE_MASTRA=false) enquanto o bloqueio externo é resolvido. Após corrigir a chave/acesso, ativar USE_MASTRA=true, fazer novo deploy e repetir scripts/production-acceptance.py com a exigência padrão de Mastra. Custos e quotas dependem da conta NVIDIA; nenhuma compra ou alteração financeira foi realizada pelo agente.
