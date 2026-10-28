@@ -14,6 +14,10 @@ function connection():pg.Pool {
  if(pool)return pool;
  const url=process.env.DATABASE_URL;
  if(!url)throw new Error('DATABASE_URL is required for PostgreSQL');
+ let parsed:URL;
+ try{parsed=new URL(url)}catch{throw new Error('DATABASE_URL must be a valid PostgreSQL URL')}
+ if(!['postgres:','postgresql:'].includes(parsed.protocol))throw new Error('DATABASE_URL must use postgres:// or postgresql://');
+ if(process.env.NODE_ENV==='production'&&process.env.PGSSL_DISABLE==='true')throw new Error('PGSSL_DISABLE cannot be true in production');
  pool=new Pool({connectionString:url,max:5,idleTimeoutMillis:10000,connectionTimeoutMillis:10000,
   ssl:process.env.PGSSL_DISABLE==='true'?false:{rejectUnauthorized:true}});
  return pool;
