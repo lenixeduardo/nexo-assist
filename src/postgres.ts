@@ -26,17 +26,17 @@ function qualified(sql:string):string {
  // The search_path is set on every pooled connection, and on transactions.
  return placeholders(sql);
 }
-export async function query<T extends pg.QueryResultRow=pg.QueryResultRow>(sql:string,...values:Params):Promise<T[]>{
+export async function query<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T[]>{
  const client=context.getStore();
- if(client)return (await client.query<T>(qualified(sql),[...values])).rows;
+ if(client)return (await client.query(qualified(sql),[...values])).rows as T[];
  const p=connection();
  const c=await p.connect();
  try{
   await c.query('SET search_path TO nexo, pg_catalog');
-  return (await c.query<T>(qualified(sql),[...values])).rows;
+  return (await c.query(qualified(sql),[...values])).rows;
  }finally{c.release()}
 }
-export async function one<T extends pg.QueryResultRow=pg.QueryResultRow>(sql:string,...values:Params):Promise<T|undefined>{
+export async function one<T=pg.QueryResultRow>(sql:string,...values:Params):Promise<T|undefined>{
  return (await query<T>(sql,...values))[0];
 }
 export async function execute(sql:string,...values:Params):Promise<number>{
