@@ -32,3 +32,18 @@ Tabela: tela, estado verificado, nota por dimensão, nota final, gaps P0/P1/P2, 
 - x2HBOE: Atendente conversas
 - CAqx8: Atendente em atendimento
 - i4fCbC: Meu perfil
+
+## GATE OBRIGATÓRIO DE EVIDÊNCIA (não opcional)
+Depois de **cada** alteração de UI, execute o workflow `Nexo visual audit screenshots` no SHA atualizado, aguarde sua conclusão e recupere o artifact `nexo-visual-audit-evidence`. Nunca encerre a rodada apenas com commit ou CI verde.
+
+Antes de considerar uma página avaliada, confirme no artifact:
+1. Captura Pencil PNG, captura real da UI da **branch atual** (JS/CSS injetados sobre origem autenticada), e `comparison-<screen>.jpg` lado a lado, todas no mesmo viewport e estado.
+2. `six-screen-comparison.json` contendo a página com `status=compared`; `authenticated/results.json` com `status=captured` e sem overflow. Para login, capture equivalente anônimo.
+3. Log do run e SHA correspondente ao último commit; screenshots de um SHA antigo são inválidas para pontuar correções novas.
+4. Disponibilize a evidência visual **na própria conversa** quando solicitado, além de link do artifact e nota detalhada.
+5. Compare resultados antes/depois. Se MAE piorar, investigue regressão antes de declarar progresso; métricas de pixels não substituem a inspeção semântica.
+6. Sem screenshot, com estados divergentes ou falta de dados, marque `BLOQUEADO/NÃO TESTADO`; não aumente a nota e não declare aprovação.
+7. A nota 9,5 requer aprovação por tela, evidência do mesmo SHA, testes de interação e relatório de critérios ponderados. O gate global exige seis telas aprovadas.
+
+### Evidência de referência mais recente
+Run 40771905509 (SHA e49f929): login MAE 7.31; chat novo 18.61; consulta 13.85; fila 9.60; perfil 2.96; atendimento ativo NÃO TESTADO. Estes valores são apenas baseline, não nota visual.
