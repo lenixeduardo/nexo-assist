@@ -129,3 +129,24 @@ h1,h2,h3{letter-spacing:normal}
 .login-form-container .forgot:focus-visible{outline:2px solid #0062c4;outline-offset:3px;border-radius:2px}
 .login-form-container .password-toggle:focus-visible{outline:2px solid #0062c4;outline-offset:2px}
 @media(max-width:760px){.login-showcase .showcase-eyebrow{font-size:11px;margin-bottom:12px}}
+
+
+/* Goal 9.5 — match the original Pencil login vertical geometry (1440x900). */
+@media(min-width:1151px){
+.login-showcase{justify-content:flex-start;min-height:900px}
+.login-showcase .brand{flex:0 0 auto}
+.login-showcase .showcase-main{margin-top:24px;max-width:672px}
+.login-showcase .showcase-eyebrow{display:none}
+.login-showcase .showcase-main h1{margin:0 0 18px;font-size:54px;line-height:1.04;letter-spacing:-.5px;max-width:672px}
+.login-showcase .showcase-main>p{margin:0;font-size:16px;line-height:1.48;max-width:520px}
+.login-showcase .demo-chat{margin:30px 0 0 96px;width:500px;max-width:calc(100% - 96px)}
+.login-showcase .showcase-foot{margin-top:20px;padding-top:0;flex:0 0 auto}
+.login-showcase .showcase-foot .metric strong{font-size:34px}
+.login-right .login-form-container{margin:0 auto;position:relative;top:0;transform:none;align-self:center;margin-top:0}
+.login-right{justify-content:flex-start}
+.login-right .login-help{flex:0 0 auto}
+.login-right .login-form-container{margin-top:0}
+.login-right .login-form-container h2{margin-top:0}
+.login-right .login-foot{margin-top:auto}
+.login-right .demo-users{margin-top:14px;padding-top:10px}
+}
