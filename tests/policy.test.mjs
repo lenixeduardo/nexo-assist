@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {priorityFor,classify,dueDate,canReopen,sameProblem} from '../dist/policy.js';
+test('critical for team outage',()=>{assert.equal(priorityFor({affected:'TEAM',blocked:true}).priority,'CRITICA')});
+test('high for one blocked or appointment today',()=>{assert.equal(priorityFor({affected:'SELF',blocked:true}).priority,'ALTA');assert.equal(priorityFor({todayDeadline:true}).priority,'ALTA')});
+test('medium for alternative and low for no-urgency requests',()=>{assert.equal(priorityFor({hasWorkaround:true}).priority,'MEDIA');assert.equal(priorityFor({request:true}).priority,'BAIXA')});
+test('classify incident vs request and exact categories',()=>{assert.deepEqual(classify('Minha VPN não funciona'),{type:'INC',category:'Rede e VPN'});assert.deepEqual(classify('Preciso de um segundo monitor'),{type:'REQ',category:'Hardware'})});
+test('critical SLA one continuous hour',()=>{assert.equal(dueDate('CRITICA',new Date('2026-10-23T21:00:00.000Z')).toISOString(),'2026-10-23T22:00:00.000Z')});
+test('business SLA skips weekend',()=>{const fri=new Date('2026-10-23T20:00:00.000Z');const due=dueDate('ALTA',fri);assert.equal(due.toISOString(),'2026-10-26T14:00:00.000Z')});
+test('duplicate requires problem-specific overlap',()=>{assert.equal(sameProblem('impressora travando tenho alternativa','teclado travando tenho alternativa'),false);assert.equal(sameProblem('VPN erro 809 Windows 11','VPN erro 809 windows onze'),true)});
+test('resolved ticket seven day cutoff',()=>{const t={status:'RESOLVIDO',resolved_at:new Date(Date.now()-4*86400000).toISOString()};assert.equal(canReopen(t),true);t.resolved_at=new Date(Date.now()-8*86400000).toISOString();assert.equal(canReopen(t),false)});
