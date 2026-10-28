@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "npm run build && npm run start",
     "start": "node --disable-warning=ExperimentalWarning dist/server.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node -e \"require('node:fs').cpSync('public','dist/public',{recursive:true})\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
     "seed": "node --disable-warning=ExperimentalWarning dist/seed.js",
