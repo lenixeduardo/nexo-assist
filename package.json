@@ -12,14 +12,14 @@
     "start": "node --disable-warning=ExperimentalWarning dist/server.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/policy.test.mjs tests/postgres.integration.test.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/policy.test.mjs tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs",
     "seed": "node --disable-warning=ExperimentalWarning dist/seed.js",
     "start:env": "node --env-file=.env --disable-warning=ExperimentalWarning dist/server.js",
     "smoke:mastra": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/mastra-live-smoke.mjs",
     "test:e2e": "python tests/browser_e2e.py",
     "smoke:postgres": "node scripts/postgres-smoke.mjs",
     "test:legacy": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
-    "test:postgres": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/postgres.integration.test.mjs"
+    "test:postgres": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs"
   },
   "devDependencies": {
     "typescript": "^5.8.3",
