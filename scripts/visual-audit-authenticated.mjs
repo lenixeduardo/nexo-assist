@@ -31,6 +31,13 @@ for(const c of credentials){
   }else{
    await snap(page,'04-analyst-queue',expected);
    const active=page.locator('.analyst-main .composer');
+   if(!(await active.count())){
+    const count=await page.locator('[data-select]').count();
+    for(let i=0;i<count;i++){
+     await page.locator('[data-select]').nth(i).click();
+     if(await active.count())break;
+    }
+   }
    if(await active.count())await snap(page,'05-analyst-active','.analyst-main');
    else results.push({screen:'05-analyst-active',status:'not_tested',reason:'No active assigned conversation; audit did not assume or modify production tickets'});
   }
