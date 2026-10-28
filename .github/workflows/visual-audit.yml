@@ -13,10 +13,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save playwright
+      - run: npm install --no-save playwright @open-pencil/cli
       - run: npx playwright install --with-deps chromium
       - run: node scripts/visual-audit-capture.mjs
+      - name: Render six original Pencil frames (when supported)
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/visual-audit
+          npx openpencil export docs/nexo.pen --node bi8Au -f png -o artifacts/visual-audit/pencil-login.png
+          npx openpencil export docs/nexo.pen --node IcuoM -f png -o artifacts/visual-audit/pencil-new-ticket.png
+          npx openpencil export docs/nexo.pen --node vbsNW -f png -o artifacts/visual-audit/pencil-ticket-status.png
+          npx openpencil export docs/nexo.pen --node x2HBOE -f png -o artifacts/visual-audit/pencil-analyst-queue.png
+          npx openpencil export docs/nexo.pen --node CAqx8 -f png -o artifacts/visual-audit/pencil-analyst-active.png
+          npx openpencil export docs/nexo.pen --node i4fCbC -f png -o artifacts/visual-audit/pencil-profile.png
+          if [ -f artifacts/visual-audit/pencil-login.png ]; then
+            echo VISUAL_IMAGE_PENCIL_BEGIN
+            base64 -w0 artifacts/visual-audit/pencil-login.png
+            echo
+            echo VISUAL_IMAGE_PENCIL_END
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: nexo-production-login-screenshots
-          path: artifacts/visual-audit/*.jpg
+          path: artifacts/visual-audit/
