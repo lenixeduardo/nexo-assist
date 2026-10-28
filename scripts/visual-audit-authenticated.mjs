@@ -40,4 +40,4 @@ for(const c of credentials){
 await browser.close();
 writeFileSync('artifacts/visual-audit/authenticated/results.json',JSON.stringify({base,results},null,2));
 console.log('AUTHENTICATED_AUDIT_RESULTS='+JSON.stringify(results));
-if(results.some(r=>r.status==='error'))process.exitCode=1;
+if(results.some(r=>r.status==='error'||r.status==='not_tested')){console.error('Authenticated visual audit incomplete: missing credentials or inaccessible screens.');process.exitCode=1;}
