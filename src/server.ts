@@ -103,3 +103,6 @@ if(process.env.VERCEL!=='1'){
  const server=createServer((req,res)=>{void handler(req,res)});
  server.listen(PORT,()=>console.log(`Nexo Assist disponível em http://localhost:${PORT}`));
 }
+
+// Vercel auto-detects this server module as its Node function entrypoint.
+export default handler;
