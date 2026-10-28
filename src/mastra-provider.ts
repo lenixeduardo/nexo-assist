@@ -1,5 +1,5 @@
 /** Direct provider configuration. Never returns or records credential values. */
-const NVIDIA_MODEL='nvidia/mistralai/mistral-large-3-675b-instruct-2512';
+const NVIDIA_MODEL='nvidia/mistralai/mistral-large-2-instruct';
 export function mastraProviderConfig(env:Record<string,string|undefined>):{provider:'nvidia'|'openai';model:string;credentialEnv:string;configured:boolean}{
  const provider=env.MASTRA_PROVIDER||'nvidia';
  if(provider!=='nvidia'&&provider!=='openai')throw new Error('MASTRA_CONFIG_ERROR: provedor inválido');

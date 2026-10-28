@@ -7,10 +7,10 @@ export const sha=(value:unknown)=>createHash('sha256').update(typeof value==='st
 const sensitive=/password|senha|secret|authorization|cookie|api.?key|token|credential|chave|session/i;
 function clean(value:unknown,depth=0):unknown{
  if(depth>5)return '[depth-limit]';
- if(typeof value==='string')return value.replace(/\bsk-[A-Za-z0-9_-]{8,}\b/g,'[redacted-key]').replace(/Bearer\s+\S+/gi,'Bearer [redacted]').slice(0,1500);
+ if(typeof value==='string')return value.replace(/\b(?:sk|nvapi)-[A-Za-z0-9_-]{8,}\b/gi,'[redacted-key]').replace(/Bearer\s+\S+/gi,'Bearer [redacted]').slice(0,1500);
  if(typeof value==='number'||typeof value==='boolean'||value===null)return value;
  if(Array.isArray(value))return value.slice(0,15).map(v=>clean(v,depth+1));
- if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value as Record<string,unknown>).slice(0,30).map(([k,v])=>[k,sensitive.test(k)?'[redacted]':clean(v,depth+1)]));
+ if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value as Record<string,unknown>).slice(0,30).map(([k,v])=>[k,sensitive.test(k)&&!(typeof v==='number'&&/^(inputTokens|outputTokens|totalTokens|reasoningTokens|cachedInputTokens|prompt_tokens|completion_tokens|total_tokens)$/.test(k))?'[redacted]':clean(v,depth+1)]));
  return undefined;
 }
 export const safeJson=(v:unknown):string=>JSON.stringify(clean(v)).slice(0,12000);
