@@ -1,0 +1,48 @@
+name: Nexo analyst visual fixtures proof
+on:
+  push:
+    branches: [fix/nexo-goal-95-layout]
+    paths:
+      - scripts/seed-analyst-visual-fixtures.mjs
+      - .github/workflows/visual-audit-fixtures.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fixture-proof:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: nexo_fixture_only
+          POSTGRES_USER: nexo_fixture
+          POSTGRES_DB: nexo_visual_fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U nexo_fixture -d nexo_visual_fixture"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://nexo_fixture:nexo_fixture_only@127.0.0.1:5432/nexo_visual_fixture
+      NEXO_FIXTURE_ISOLATED_DB: 'true'
+      PGSSL_DISABLE: 'true'
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Create isolated schema
+        run: PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -f migrations/001_postgres.sql
+      - name: Seed analyst queue and active conversation
+        run: node scripts/seed-analyst-visual-fixtures.mjs | tee fixture-proof.jsonl
+      - name: Check real persisted fixture states
+        run: |
+          PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -c "SELECT id,user_id,state,assigned_analyst_id FROM nexo.conversations WHERE id LIKE 'visual-%' ORDER BY id;"
+          PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -c "SELECT count(*) AS messages FROM nexo.messages WHERE conversation_id LIKE 'visual-%';"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nexo-analyst-fixture-proof
+          path: fixture-proof.jsonl
