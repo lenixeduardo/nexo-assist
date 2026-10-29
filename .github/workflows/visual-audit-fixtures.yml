@@ -37,14 +37,28 @@ jobs:
         run: |
           PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -c 'CREATE ROLE anon NOLOGIN; CREATE ROLE authenticated NOLOGIN;'
           PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -f migrations/001_postgres.sql
+      - name: Build isolated application
+        run: npm run build
       - name: Seed analyst queue and active conversation
         run: node scripts/seed-analyst-visual-fixtures.mjs | tee fixture-proof.jsonl
       - name: Check real persisted fixture states
         run: |
           PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -c "SELECT id,user_id,state,assigned_analyst_id FROM nexo.conversations WHERE id LIKE 'visual-%' ORDER BY id;"
           PGPASSWORD=nexo_fixture_only psql -h 127.0.0.1 -U nexo_fixture -d nexo_visual_fixture -v ON_ERROR_STOP=1 -c "SELECT count(*) AS messages FROM nexo.messages WHERE conversation_id LIKE 'visual-%';"
+      - name: Capture analyst queue and active screenshots with isolated fixtures
+        env:
+          APP_SESSION_SECRET: visual-fixture-isolated-session-secret-32chars
+          PORT: '4174'
+          NEXO_VISUAL_FIXTURE_BASE_URL: http://127.0.0.1:4174
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          node dist/server.js > /tmp/nexo-fixture-app.log 2>&1 &
+          node scripts/capture-analyst-fixtures.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: nexo-analyst-fixture-proof
-          path: fixture-proof.jsonl
+          path: |
+            fixture-proof.jsonl
+            artifacts/visual-audit/fixture/
