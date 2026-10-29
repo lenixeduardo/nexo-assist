@@ -1,0 +1,269 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "nexo-analyst-pencil-fidelity",
+  "purpose": "Deterministic isolated visual audit; never production",
+  "reference": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "frames": {
+      "04-analyst-queue": "x2HBOE",
+      "05-analyst-active": "CAqx8"
+    },
+    "date": "2026-10-28T12:00:00.000Z"
+  },
+  "users": [
+    {
+      "id": "u-ana",
+      "name": "Ana Souza",
+      "email": "ana.souza@nexo.com.br",
+      "role": "EMPLOYEE",
+      "department": "Financeiro"
+    },
+    {
+      "id": "u-bruno",
+      "name": "Bruno Tavares",
+      "email": "bruno.tavares@nexo.com.br",
+      "role": "EMPLOYEE",
+      "department": "Operações"
+    },
+    {
+      "id": "u-carla",
+      "name": "Carla Mendes",
+      "email": "carla.mendes@nexo.com.br",
+      "role": "EMPLOYEE",
+      "department": "Comercial"
+    },
+    {
+      "id": "u-diego",
+      "name": "Diego Ramos",
+      "email": "diego.ramos@nexo.com.br",
+      "role": "EMPLOYEE",
+      "department": "Tecnologia"
+    },
+    {
+      "id": "u-rafael",
+      "name": "Rafael Lima",
+      "email": "rafael.lima@nexo.com.br",
+      "role": "ANALYST",
+      "department": "Suporte N2"
+    }
+  ],
+  "conversations": [
+    {
+      "id": "visual-ana-waiting",
+      "user_id": "u-ana",
+      "state": "WAITING_ANALYST",
+      "assigned_analyst_id": null,
+      "updated_at": "2026-10-28T11:55:00.000Z"
+    },
+    {
+      "id": "visual-bruno-active",
+      "user_id": "u-bruno",
+      "state": "ANALYST_ACTIVE",
+      "assigned_analyst_id": "u-rafael",
+      "updated_at": "2026-10-28T11:57:00.000Z"
+    },
+    {
+      "id": "visual-carla-waiting",
+      "user_id": "u-carla",
+      "state": "WAITING_ANALYST",
+      "assigned_analyst_id": null,
+      "updated_at": "2026-10-28T11:51:00.000Z"
+    },
+    {
+      "id": "visual-diego-agent",
+      "user_id": "u-diego",
+      "state": "AGENT_ACTIVE",
+      "assigned_analyst_id": null,
+      "updated_at": "2026-10-28T11:45:00.000Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "visual-msg-ana-1",
+      "conversation_id": "visual-ana-waiting",
+      "sender_id": "u-ana",
+      "role": "user",
+      "text": "Preciso de ajuda com o acesso ao SharePoint.",
+      "created_at": "2026-10-28T11:53:00.000Z"
+    },
+    {
+      "id": "visual-msg-ana-2",
+      "conversation_id": "visual-ana-waiting",
+      "sender_id": null,
+      "role": "agent",
+      "text": "Encaminhei sua solicitação para um analista.",
+      "created_at": "2026-10-28T11:55:00.000Z"
+    },
+    {
+      "id": "visual-msg-bruno-1",
+      "conversation_id": "visual-bruno-active",
+      "sender_id": "u-bruno",
+      "role": "user",
+      "text": "Minha VPN não conecta, erro 809 no Windows 11.",
+      "created_at": "2026-10-28T11:54:00.000Z"
+    },
+    {
+      "id": "visual-msg-bruno-2",
+      "conversation_id": "visual-bruno-active",
+      "sender_id": null,
+      "role": "agent",
+      "text": "Vou transferir seu atendimento para a equipe de TI.",
+      "created_at": "2026-10-28T11:56:00.000Z"
+    },
+    {
+      "id": "visual-msg-bruno-3",
+      "conversation_id": "visual-bruno-active",
+      "sender_id": "u-rafael",
+      "role": "analyst",
+      "text": "Olá, Bruno. Estou verificando sua conexão VPN.",
+      "created_at": "2026-10-28T11:57:00.000Z"
+    },
+    {
+      "id": "visual-msg-carla-1",
+      "conversation_id": "visual-carla-waiting",
+      "sender_id": "u-carla",
+      "role": "user",
+      "text": "Preciso de acesso ao SAP.",
+      "created_at": "2026-10-28T11:50:00.000Z"
+    },
+    {
+      "id": "visual-msg-carla-2",
+      "conversation_id": "visual-carla-waiting",
+      "sender_id": null,
+      "role": "agent",
+      "text": "Um atendente dará continuidade.",
+      "created_at": "2026-10-28T11:51:00.000Z"
+    },
+    {
+      "id": "visual-msg-diego-1",
+      "conversation_id": "visual-diego-agent",
+      "sender_id": "u-diego",
+      "role": "user",
+      "text": "Como configurar meu e-mail corporativo?",
+      "created_at": "2026-10-28T11:45:00.000Z"
+    }
+  ],
+  "tickets": [
+    {
+      "id": "INC-20311",
+      "owner_user_id": "u-ana",
+      "title": "Notebook lento após atualização do Windows",
+      "description": "Lentidão após atualização",
+      "type": "INC",
+      "category": "Hardware",
+      "priority": "MEDIA",
+      "affected": "SELF",
+      "status": "AGUARDANDO_ANALISTA",
+      "opened_at": "2026-10-28T11:00:00.000Z"
+    },
+    {
+      "id": "INC-30002",
+      "owner_user_id": "u-bruno",
+      "title": "VPN sem conectar — erro 809",
+      "description": "VPN não conecta no Windows 11",
+      "type": "INC",
+      "category": "Rede e VPN",
+      "priority": "ALTA",
+      "affected": "SELF",
+      "status": "EM_ANDAMENTO",
+      "opened_at": "2026-10-28T11:30:00.000Z"
+    },
+    {
+      "id": "REQ-30003",
+      "owner_user_id": "u-carla",
+      "title": "Acesso ao SAP",
+      "description": "Acesso necessário para área comercial",
+      "type": "REQ",
+      "category": "Acesso",
+      "priority": "ALTA",
+      "affected": "SELF",
+      "status": "ABERTO",
+      "opened_at": "2026-10-28T11:40:00.000Z"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "04-analyst-queue",
+      "frame": "x2HBOE",
+      "actor": "u-rafael",
+      "route": "/analyst",
+      "selectedConversationId": "visual-ana-waiting",
+      "expected": {
+        "totalConversations": 4,
+        "waiting": 2,
+        "active": 1,
+        "agent": 1,
+        "searchOptions": [
+          "Ana Souza",
+          "Bruno Tavares",
+          "Carla Mendes",
+          "Diego Ramos"
+        ],
+        "backgroundsToVerify": [
+          ".analyst-shell",
+          ".rail",
+          ".queue",
+          ".analyst-main",
+          ".analyst-right"
+        ],
+        "controlsToVerify": [
+          "search",
+          "filter tabs",
+          "conversation cards",
+          "selected state",
+          "hover",
+          "focus-visible"
+        ]
+      }
+    },
+    {
+      "id": "05-analyst-active",
+      "frame": "CAqx8",
+      "actor": "u-rafael",
+      "route": "/analyst",
+      "selectedConversationId": "visual-bruno-active",
+      "expected": {
+        "state": "ANALYST_ACTIVE",
+        "assigned_analyst_id": "u-rafael",
+        "messageCount": 3,
+        "composerVisible": true,
+        "returnActionVisible": true,
+        "closeActionVisible": true,
+        "backgroundsToVerify": [
+          ".analyst-shell",
+          ".rail",
+          ".queue",
+          ".analyst-main",
+          ".analyst-right",
+          ".chat-body"
+        ],
+        "controlsToVerify": [
+          "selected conversation",
+          "send composer",
+          "return to agent",
+          "close service"
+        ]
+      }
+    }
+  ],
+  "audit": {
+    "captureViewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "requiredEvidence": [
+      "actual PNG",
+      "Pencil PNG",
+      "side-by-side comparison",
+      "computed CSS backgrounds",
+      "computed option states",
+      "no horizontal overflow"
+    ],
+    "approvalThreshold": 9.5,
+    "productionWritesAllowed": false,
+    "fixtureMode": "isolated PostgreSQL only"
+  }
+}
