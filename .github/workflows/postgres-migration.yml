@@ -1,9 +1,9 @@
 name: PostgreSQL migration checks
 on:
   pull_request:
-    branches: [main]
+    branches: [main, 'fix/nexo-validation-security-20261104']
   push:
-    branches: [feat/postgres-vercel-migration]
+    branches: [feat/postgres-vercel-migration, 'fix/nexo-ticket-handoff-ui-a11y-20261104']
   workflow_dispatch:
 permissions:
   contents: read
@@ -45,6 +45,8 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
+      - name: Frontend JS syntax
+        run: npm run qa:syntax
       - name: PostgreSQL integration and policy tests
         run: npm test
       - name: PostgreSQL connection smoke test
