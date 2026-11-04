@@ -79,6 +79,7 @@ async function run(){
  const ticketResponse=await page.evaluate(async()=>{const r=await fetch('/api/tickets');return {status:r.status,data:await r.json()}});
  check('ticket persisted through HTTP',ticketResponse.status===200&&ticketResponse.data.tickets.some(t=>t.title.includes('impressora')||t.title.includes('Impressora')));
  await page.locator('[data-new]').first().click();
+ await page.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
  await send(page,'Quero falar com um analista');
  await page.waitForFunction(()=>document.querySelector('.chat-state')?.textContent.includes('Aguardando analista'),{timeout:30000});
  check('human handoff suspends agent',true);
