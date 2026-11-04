@@ -1,4 +1,4 @@
-FROM node:22.18.0-bookworm-slim
+FROM node:22.22.0-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
 COPY package.json package-lock.json ./
