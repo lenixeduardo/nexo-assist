@@ -18,6 +18,8 @@ test('HTTP login, conversation, agent handoff, audit and analyst queue use Postg
   let ready=false;
   for(let i=0;i<100;i++){try{if((await request('/api/health')).status===200){ready=true;break}}catch{}await sleep(100)}
   assert.equal(ready,true,'Server startup failed: '+logs);
+  assert.equal((await request('/api/me')).status,401,'Unauthenticated /api/me must be denied');
+  assert.equal((await request('/api/demo/users')).status,401,'Unauthenticated demo list must be denied');
   const login=await request('/api/login','POST',{email:'ana.souza@nexo.com.br',password:'demo'});
   assert.equal(login.status,200,JSON.stringify(login.data));
   const cookie=login.cookie.split(';')[0];
