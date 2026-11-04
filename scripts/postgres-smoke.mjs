@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {one,execute,transaction,closePool} from '../dist/postgres.js';
 
-if(!process.env.DATABASE_URL) {
+if(process.env.NODE_ENV==='production'||process.env.NEXO_ISOLATED_TEST_DB!=='true'){
+ console.error('SMOKE_SAFETY: execute only on an isolated test PostgreSQL with NEXO_ISOLATED_TEST_DB=true.');
+ process.exitCode=2;
+} else if(!process.env.DATABASE_URL) {
  console.error('DATABASE_URL ausente; teste de integração PostgreSQL não executado.');
  process.exitCode=2;
 } else {
