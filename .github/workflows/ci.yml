@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main, 'fix/nexo-validation-security-20261104']
+  push:
+    branches: ['fix/nexo-ticket-handoff-ui-a11y-20261104']
 permissions:
   contents: read
 jobs:
@@ -13,8 +16,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.18.0'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run build
+      - run: npm run qa:syntax
       - run: npm run typecheck
       - name: Domain policy regression tests
         run: node --test tests/policy.test.mjs tests/auth-session.test.mjs
