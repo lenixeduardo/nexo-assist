@@ -5,7 +5,7 @@ import * as db from '../dist/postgres-db.js';
 import {transaction,execute,closePool} from '../dist/postgres.js';
 import {receiveMessage} from '../dist/agent.js';
 import {auditForConversation} from '../dist/postgres-audit.js';
-import {classify,priorityFor,ticketSla,canReopen,dueDate} from '../dist/policy.js';
+import {classify,inferFacts,priorityFor,ticketSla,canReopen,dueDate} from '../dist/policy.js';
 if(!process.env.DATABASE_URL)throw Error('DATABASE_URL required; use an isolated test database');
 const rollback=Symbol('rollback');
 async function scenario(fn){
@@ -62,4 +62,26 @@ test('supporting: outage makes no mutations and audit preserves ordered redacted
  const c=await db.newConversation('u-ana');const before=(await db.listMyTickets('u-ana')).length;process.env.TICKET_SERVICE_DOWN='true';let result;
  try{result=await receiveMessage('u-ana',c.id,'Qual o status dos meus chamados?')}finally{delete process.env.TICKET_SERVICE_DOWN}
  assert.match(result.response.text,/indisponível/);assert.equal((await db.listMyTickets('u-ana')).length,before);const [trace]=await auditForConversation(c.id);assert.equal(trace.run.status,'COMPLETED');assert.ok(trace.events.some(x=>x.kind==='TOOL_RESULT'&&x.outcome==='ERROR'));assert.ok(trace.events.every((x,i)=>x.seq===i+1));
+}));
+
+
+test('A10: ticket identifiers advance above the largest existing ID',()=>scenario(async()=>{
+ const now=new Date().toISOString();
+ await execute("INSERT INTO tickets(id,owner_user_id,title,description,type,category,priority,affected,status,opened_at,last_updated_at,resolved_at,version) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,1)",'REQ-900001','u-ana','Legacy fixture','Existing request with high suffix','REQ','Software','BAIXA','SELF','ABERTO',now,now,null);
+ const conversation=await db.newConversation('u-ana');
+ const description='Solicito acesso a uma nova ferramenta de conversão para meu equipamento individual.';
+ const expected=priorityFor({...inferFacts(description,'REQ'),affected:'SELF'});
+ const draft=await db.createDraft({conversation_id:conversation.id,owner_user_id:'u-ana',action:'CREATE',ticket_id:null,title:'Ferramenta de conversão especial',description,type:'REQ',category:'Software',priority:expected.priority,affected:'SELF',justification:expected.reason});
+ const result=await db.confirmDraft('u-ana',draft.id,draft.version,'unique-id-regression');
+ assert.equal(result.ticket.id,'REQ-900002');
+}));
+test('A11: concurrent analyst assumptions do not both succeed',()=>scenario(async()=>{
+ const {c}=await chat('Quero falar com um analista');
+ const attempts=await Promise.allSettled([
+  db.analystTransition('u-rafael',c.id,'assume'),
+  db.analystTransition('u-rafael',c.id,'assume')
+ ]);
+ assert.equal(attempts.filter(x=>x.status==='fulfilled').length,1);
+ assert.equal(attempts.filter(x=>x.status==='rejected').length,1);
+ assert.equal((await db.getConversation(c.id)).state,'ANALYST_ACTIVE');
 }));
