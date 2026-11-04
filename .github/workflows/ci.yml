@@ -1,11 +1,9 @@
 name: Nexo Assist — CI
 on:
   push:
-    branches: [main]
+    branches: [main, 'fix/nexo-ticket-handoff-ui-a11y-20261104']
   pull_request:
     branches: [main, 'fix/nexo-validation-security-20261104']
-  push:
-    branches: ['fix/nexo-ticket-handoff-ui-a11y-20261104']
 permissions:
   contents: read
 jobs:
