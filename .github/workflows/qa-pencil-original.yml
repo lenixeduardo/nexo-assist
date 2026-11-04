@@ -30,12 +30,13 @@ jobs:
           done
           python3 - <<'PY'
           import json,pathlib
-          from PIL import Image
+          import struct
           p=pathlib.Path("artifacts/pencil-qa")
           entries=[]
           for file in sorted(p.glob("*.png")):
-              with Image.open(file) as image:
-                  entries.append({"name":file.name,"size":list(image.size)})
+              header=file.read_bytes()[:24]
+              if header[:8] != b"\x89PNG\r\n\x1a\n": raise ValueError(f"Invalid PNG: {file}")
+              entries.append({"name":file.name,"size":list(struct.unpack(">II",header[16:24]))})
           print("ORIGINAL_EXPORTS="+json.dumps(entries))
           (p/"export-manifest.json").write_text(json.dumps(entries,indent=2))
           PY
