@@ -204,3 +204,7 @@ h1,h2,h3{letter-spacing:normal}
  .login-right{padding-inline:18px}
 }
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+.rail-action{appearance:none;border:1px solid transparent;border-radius:10px;background:transparent;color:#b8c9de;width:40px;height:40px}
+.rail-action:hover{background:#263b56;color:#fff}
+.rail-action:focus-visible{outline:3px solid #7ac5ff;outline-offset:2px}
