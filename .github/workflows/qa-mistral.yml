@@ -50,4 +50,8 @@ jobs:
           PGPASSWORD=postgres psql -h localhost -U postgres -d nexo_live_smoke -v ON_ERROR_STOP=1 -f migrations/001_postgres.sql
       - run: npm run build
       - name: Real Mastra tool calls and audited model smoke
-        run: npm run smoke:mastra
+        run: |
+          # The workflow receives credentials exclusively from Actions Secrets.
+          # Create a deliberately empty file for the app's optional local --env-file flag.
+          touch .env
+          npm run smoke:mastra
