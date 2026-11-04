@@ -169,6 +169,9 @@ async function run(){
  selectionPage.on('pageerror',e=>report.errors.push(String(e)));
  await login(selectionPage,'ana.souza@nexo.com.br');
  await selectionPage.locator('[data-new]').first().click();
+ // Creating a new conversation is asynchronous: wait for the new chat shell,
+ // otherwise the old form may be removed between fill() and click().
+ await selectionPage.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
  await send(selectionPage,'Qual o status dos meus chamados?');
  const selectionDiagnostics=await selectionPage.evaluate(()=>({state:document.querySelector('.chat-state')?.textContent,agentMessages:[...document.querySelectorAll('.message.agent .bubble')].slice(-2).map(x=>x.textContent?.slice(0,300)),ticketChoices:[...document.querySelectorAll('[data-ticket]')].map(x=>x.dataset.ticket),toast:document.querySelector('#toast')?.textContent?.slice(0,150)}));
  console.log('TICKET_SELECTION_DIAGNOSTICS='+JSON.stringify(selectionDiagnostics));
