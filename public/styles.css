@@ -371,3 +371,17 @@ h1,h2,h3{letter-spacing:normal}
 .workspace .topbar strong{color:#1b2431;font-size:12.5px;font-weight:500}
 .workspace .topbar .flex>div:not(.avatar) .eyebrow:after{content:' /';margin-left:6px;color:#a9b1bc}
 @media(max-width:760px){.workspace .topbar .flex>div:not(.avatar){display:block}.workspace .topbar .flex>div:not(.avatar) .eyebrow:after{content:none}.queue-head{padding:14px 12px}.queue-search-field{margin-top:12px}.queue-filters{margin-top:8px}}
+
+
+/* Real ticket status summary; mirrors Pencil's compact lookup card. */
+.ticket-status-card{border:1px solid #e6e8ec;background:#fff;border-radius:13px;padding:13px 15px;margin:10px 0 0 30px;display:grid;gap:6px;box-shadow:none}
+.ticket-status-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ticket-status-heading .ticket-id{font-family:'IBM Plex Mono',monospace;color:#667486;font-size:11px}
+.ticket-current-state{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#697587}
+.ticket-status-title{font-size:13px;color:#1b2431;font-weight:600}
+.ticket-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;border-top:1px solid #eff1f4;margin-top:4px;padding-top:10px}
+.ticket-status-grid div{display:grid;gap:2px;min-width:0}
+.ticket-status-grid span{color:#728092;font-size:10.5px}
+.ticket-status-grid strong{font-size:11.5px;font-weight:500;color:#374759;overflow-wrap:anywhere}
+@media(max-width:760px){.ticket-status-card{margin-left:0;padding:12px}.ticket-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:390px){.ticket-status-grid{grid-template-columns:1fr}}
