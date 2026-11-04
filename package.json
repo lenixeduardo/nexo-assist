@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Nexo Assist - agent de service desk de TI",
   "engines": {
-    "node": ">=22.18.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "npm run build && npm run start",
