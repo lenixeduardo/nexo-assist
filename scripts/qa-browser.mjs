@@ -58,7 +58,6 @@ async function seedAnalystVisualQueue(){
   const c=await newConversation(item.id);
   await saveMessage(c.id,'USER',item.text,item.id);
   await saveMessage(c.id,'AGENT',item.reply);
-  await saveMessage(c.id,'USER','Quero falar com o suporte humano.',item.id);
   const assignment=item.state==='ANALYST_ACTIVE'?'u-rafael':null;
   await execute('UPDATE conversations SET state=?,assigned_analyst_id=?,version=version+1,updated_at=? WHERE id=?',item.state,assignment,new Date().toISOString(),c.id);
  }
