@@ -144,11 +144,13 @@ async function run(){
  await analyst.locator('[data-action=assume]').first().click();
  await analyst.locator('#analyst-send').waitFor({timeout:30000});
  await analyst.setViewportSize({width:1567,height:900});
- await capture(analyst,'05-analyst-active');
- await analyst.locator('#analyst-send textarea').fill('Chamado recebido pela equipe de TI em ambiente de testes.');
+ check('assigned analyst actions are in header',(await analyst.locator('.analyst-top-actions [data-action=return]').count())===1&&(await analyst.locator('.analyst-top-actions [data-action=close]').count())===1);
+ check('assigned analyst has no redundant footer action bar',(await analyst.locator('.analyst-actions').count())===0);
+ await analyst.locator('#analyst-send textarea').fill('Olá, Ana! Aqui é o Rafael. Vou analisar seu chamado e acompanhar o atendimento.');
  await analyst.locator('#analyst-send button[type=submit]').click();
- await analyst.getByText('Chamado recebido pela equipe de TI em ambiente de testes.').first().waitFor({timeout:30000});
+ await analyst.getByText('Olá, Ana! Aqui é o Rafael. Vou analisar seu chamado e acompanhar o atendimento.').first().waitFor({timeout:30000});
  check('analyst sends real persisted message',true);
+ await capture(analyst,'05-analyst-active');
  await analyst.locator('[data-action=return]').first().click();
  let returned=false,returnState='UNKNOWN';
  for(let i=0;i<60;i++){
