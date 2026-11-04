@@ -158,6 +158,21 @@ async function run(){
  check('analyst returns to agent in persisted conversation',returned,returnState);
  await ac.close();
  await context.close();
+ // Exercise the real status-selection pathway from employee login through the HTTP agent.
+ const selectionContext=await browser.newContext({viewport:{width:1440,height:900}});
+ const selectionPage=await selectionContext.newPage();
+ selectionPage.on('pageerror',e=>report.errors.push(String(e)));
+ await login(selectionPage,'ana.souza@nexo.com.br');
+ await selectionPage.locator('[data-new]').first().click();
+ await send(selectionPage,'Qual o status dos meus chamados?');
+ await selectionPage.locator('[data-ticket="INC-20311"]').waitFor({timeout:30000});
+ check('status selection renders actual ticket title',await selectionPage.getByText('Notebook lento após atualização',{exact:false}).count()>0);
+ await selectionPage.locator('[data-ticket="INC-20311"]').click();
+ await selectionPage.locator('.ticket-status-card').waitFor({timeout:30000});
+ check('status detail uses real authorized ticket ID',(await selectionPage.locator('.ticket-status-card .ticket-id').first().textContent())?.trim()==='INC-20311');
+ await selectionPage.locator('.ticket-status-card').scrollIntoViewIfNeeded();
+ await capture(selectionPage,'03-ticket-detail');
+ await selectionContext.close();
  for(const width of [375,390,768]){
   const mobileContext=await browser.newContext({viewport:{width,height:844},isMobile:false});
   const mobile=await mobileContext.newPage();
