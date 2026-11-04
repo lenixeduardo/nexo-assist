@@ -166,3 +166,41 @@ h1,h2,h3{letter-spacing:normal}
 .login-form-container .demo-users{border-top:0;padding-top:0}
 .login-form-container .demo-users summary{font-size:12px;color:#5e6a7e;cursor:pointer}
 .login-form-container .demo-users .demo-user-options{padding-top:10px}
+
+
+/* Nexo accessibility and responsive corrections — additive to Pencil geometry. */
+[hidden]{display:none!important}
+.ui-icon{width:19px;height:19px;display:block;flex-shrink:0}
+.nav-icon{display:inline-flex;align-items:center;justify-content:center;width:21px;flex-shrink:0}
+.rail-glyph{display:grid;place-items:center;opacity:.78;padding:8px}
+.draft-edit-form{margin-top:14px;padding:16px;background:#f8fafc;border:1px solid #dbe4ef;border-radius:12px;display:grid;gap:12px;max-width:100%}
+.draft-edit-form label{display:grid;gap:6px;font-size:12px;font-weight:650;color:#31445b}
+.draft-edit-form input,.draft-edit-form textarea{width:100%;min-width:0;padding:11px 12px;border:1px solid #cbd7e5;border-radius:8px;background:white;color:var(--ink)}
+.draft-edit-form textarea{resize:vertical;line-height:1.55}
+.draft-edit-form .draft-actions{margin-top:0}
+.queue-item[aria-current="true"]{box-shadow:inset 3px 0 0 var(--blue)}
+.queue-filters button[aria-pressed="true"]{background:#e8f4ff;color:#096bb9;font-weight:700}
+#queue-search:focus-visible,.trace-details summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.chat-state{min-width:0;max-width:50%;overflow-wrap:anywhere}
+.composer-meta{gap:10px;flex-wrap:wrap}
+.analyst-main,.queue,.workspace{min-height:0}
+@media(max-width:760px){
+ .sidebar.open{top:64px;bottom:0;max-height:calc(100dvh - 64px)}
+ .message .bubble{overflow-wrap:anywhere}
+ .draft-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .draft-grid div:first-child{grid-column:auto}
+ .draft-actions .btn{min-height:40px}
+ .draft-edit-form{padding:12px}
+ .chat-body{overscroll-behavior:contain}
+ .analyst-main .topbar{min-height:64px;height:auto}
+ .analyst-actions{gap:8px}
+}
+@media(max-width:390px){
+ .topbar{padding-inline:12px;gap:8px}
+ .chat-state{font-size:11px;max-width:44%}
+ .composer .btn{min-width:62px;padding:8px}
+ .message.user{max-width:95%}
+ .profile-center{padding:25px 13px}
+ .login-right{padding-inline:18px}
+}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
