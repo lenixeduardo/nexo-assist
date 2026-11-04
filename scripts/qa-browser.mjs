@@ -188,6 +188,20 @@ async function run(){
  await selectionPage.locator('.ticket-status-card').scrollIntoViewIfNeeded();
  await capture(selectionPage,'03-ticket-detail');
  await selectionContext.close();
+ // Impact choices are accessible, optional and submit through the real chat API.
+ const impactContext=await browser.newContext({viewport:{width:1440,height:900}});
+ const impactPage=await impactContext.newPage();
+ impactPage.on('pageerror',e=>report.errors.push(String(e)));
+ await login(impactPage,'bruno.tavares@nexo.com.br');
+ await impactPage.locator('[data-new]').first().click();
+ await impactPage.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
+ await send(impactPage,'Meu teclado parou de funcionar.');
+ await impactPage.locator('.agent-choice[data-suggest="Só eu"]').waitFor({timeout:30000});
+ check('agent presents real impact decision choices',await impactPage.locator('.agent-choice').count()===4);
+ await impactPage.locator('.agent-choice[data-suggest="Só eu"]').click();
+ await impactPage.locator('.message.user .bubble').filter({hasText:'Só eu'}).first().waitFor({timeout:30000});
+ check('impact choice submits through real employee chat',true);
+ await impactContext.close();
  for(const width of [375,390,768]){
   const mobileContext=await browser.newContext({viewport:{width,height:844},isMobile:false});
   const mobile=await mobileContext.newPage();
