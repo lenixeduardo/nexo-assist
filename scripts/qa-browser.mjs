@@ -165,6 +165,9 @@ async function run(){
  await login(selectionPage,'ana.souza@nexo.com.br');
  await selectionPage.locator('[data-new]').first().click();
  await send(selectionPage,'Qual o status dos meus chamados?');
+ const selectionDiagnostics=await selectionPage.evaluate(()=>({state:document.querySelector('.chat-state')?.textContent,agentMessages:[...document.querySelectorAll('.message.agent .bubble')].slice(-2).map(x=>x.textContent?.slice(0,300)),ticketChoices:[...document.querySelectorAll('[data-ticket]')].map(x=>x.dataset.ticket),toast:document.querySelector('#toast')?.textContent?.slice(0,150)}));
+ console.log('TICKET_SELECTION_DIAGNOSTICS='+JSON.stringify(selectionDiagnostics));
+ await capture(selectionPage,'03-ticket-selection');
  await selectionPage.locator('[data-ticket="INC-20311"]').waitFor({timeout:30000});
  check('status selection renders actual ticket title',await selectionPage.getByText('Notebook lento após atualização',{exact:false}).count()>0);
  await selectionPage.locator('[data-ticket="INC-20311"]').click();
