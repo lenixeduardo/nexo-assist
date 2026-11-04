@@ -40,8 +40,13 @@ async function capture(page,name){
 }
 async function send(page,message){
  await page.locator('#send-form textarea').fill(message);
+ // Wait for the actual HTTP POST, not merely a button state. The old check
+ // could pass before the click handler disabled its button, causing flaky QA.
+ const responseWait=page.waitForResponse(r=>r.request().method()==='POST'&&/\/api\/conversations\/[^/]+\/messages$/.test(new URL(r.url()).pathname),{timeout:30000});
  await page.locator('#send-form button[type=submit]').click();
- await page.waitForFunction(()=>{const b=document.querySelector('#send-form button[type=submit]');return !!b&&!b.disabled},{timeout:30000});
+ const response=await responseWait;
+ check('employee message request completed',response.ok(),'HTTP '+response.status());
+ await page.waitForFunction(text=>[...document.querySelectorAll('.message.user .bubble')].some(node=>node.textContent?.trim()===text),message,{timeout:15000});
 }
 // Visual test fixtures live only in a fresh isolated PostgreSQL database.
 // They are real persisted conversations, never synthetic DOM data or production seeds.
