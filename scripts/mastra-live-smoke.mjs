@@ -3,6 +3,7 @@ import {closePool} from '../dist/postgres.js';
 import {newConversation,seed} from '../dist/postgres-db.js';
 import {mastraClassify} from '../dist/mastra.js';
 import {startRun,completeRun,auditForConversation} from '../dist/postgres-audit.js';
+if(process.env.NODE_ENV==='production'||process.env.NEXO_ISOLATED_TEST_DB!=='true')throw Error('SMOKE_SAFETY: configure a dedicated test PostgreSQL and NEXO_ISOLATED_TEST_DB=true; never run against production.');
 if(process.env.USE_MASTRA!=='true')throw Error('Set USE_MASTRA=true and configure provider authentication.');
 const cases=[
  {message:'Qual o status dos meus chamados?',intent:'TICKET_STATUS',required:['mastra.listMyTickets','mastra.getMyTicket']},
