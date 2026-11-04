@@ -180,7 +180,9 @@ async function run(){
  check('status selection renders actual ticket title',await selectionPage.getByText('Notebook lento após atualização',{exact:false}).count()>0);
  await selectionPage.locator('[data-ticket="INC-20311"]').click();
  await selectionPage.locator('.ticket-status-card').waitFor({timeout:30000});
- check('status detail uses real authorized ticket ID',(await selectionPage.locator('.ticket-status-card .ticket-id').first().textContent())?.trim()==='INC-20311');
+ check('status detail uses real authorized ticket ID',(await selectionPage.locator('.ticket-status-card .ticket-id').first().textContent())?.trim().endsWith('INC-20311'));
+ check('status detail shows real ticket description',(await selectionPage.locator('.ticket-status-description').textContent())?.includes('atualização'));
+ check('status detail exposes four real metadata fields',(await selectionPage.locator('.ticket-status-grid>div').count())===4);
  await selectionPage.locator('.ticket-status-card').scrollIntoViewIfNeeded();
  await capture(selectionPage,'03-ticket-detail');
  await selectionContext.close();
