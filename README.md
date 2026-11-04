@@ -47,6 +47,13 @@ O teste `scripts/mastra-live-smoke.mjs` faz chamadas reais e grava auditoria; ex
 
 A API não permite mutação de tickets diretamente pelo modelo: o funcionário precisa confirmar cada rascunho. O banco compartilhado com TCGScan permanece isolado pelo schema `nexo`.
 
+## Validações de segurança e smoke
+
+- Auditoria somente leitura dos grants do schema: `psql "$DATABASE_URL" -f scripts/audit-nexo-security.sql`. O schema `nexo` deve continuar sem `USAGE` e sem privilégios de tabelas para `anon` e `authenticated`. RLS está desativada no schema privado atual; não ativar automaticamente sem uma análise das roles e das policies.
+- O endpoint `/api/demo/users` fica indisponível em produção e somente funciona em desenvolvimento com `APP_DEMO_LOGIN=true`.
+- Smoke PostgreSQL e smoke Mastra escrevem ou tentam escrever no banco (o primeiro reverte a transação). Ambos exigem `NEXO_ISOLATED_TEST_DB=true` e `NODE_ENV` diferente de `production`, com `DATABASE_URL` apontando para banco descartável, **nunca** o Supabase de produção.
+- O teste real do modelo requer `USE_MASTRA=true`, `MASTRA_PROVIDER=mistral`, `MISTRAL_API_KEY` e o comando `npm run smoke:mastra` contra o banco isolado. Um build READY e os testes determinísticos não certificam uma chamada real ao Mistral.
+
 ## Segurança
 
 As tabelas de `nexo` não devem receber permissões `anon` nem `authenticated` na Data API. O acesso é server-side por credenciais PostgreSQL. RLS requer revisão específica antes de ser ativado; não criar policies permissivas indiscriminadamente. Nunca registrar ou publicar a URL de conexão completa, senhas ou chaves.
