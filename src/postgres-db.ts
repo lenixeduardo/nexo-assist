@@ -99,7 +99,9 @@ export async function confirmDraft(userId:string,id:string,version:number,idempo
    const open=duplicates.find(t=>t.status!=='RESOLVIDO');if(open)throw new DomainError('POTENTIAL_DUPLICATE',`Já existe um chamado semelhante: ${open.id}. Atualize o existente.`,409);
    await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-ticket-sequence-'+draft.type);
    // COUNT(*) can reuse a previous ID after deletions; always advance above the largest real suffix.
-   const next=await one<{n:string}>("SELECT (GREATEST(COALESCE(MAX(split_part(id,'-',2)::bigint),0),20520)+1)::text AS n FROM tickets WHERE type=? AND id ~ '^[A-Z]+-[0-9]{1,15}
+   const next=await one<{n:string}>(`SELECT (GREATEST(COALESCE(MAX(split_part(id, '-', 2)::bigint), 0), 20520) + 1)::text AS n FROM tickets WHERE type=?`,draft.type);
+   if(!next?.n)throw new Error('TICKET_SEQUENCE_ERROR');
+   const ticketId=`${draft.type}-${next.n}`;
    await execute("INSERT INTO tickets(id,owner_user_id,title,description,type,category,priority,affected,status,opened_at,last_updated_at,resolved_at,version) VALUES(?,?,?,?,?,?,?,?,'ABERTO',?,?,NULL,1)",ticketId,userId,draft.title,draft.description,draft.type,draft.category,draft.priority,draft.affected,now,now);
    ticket=await getMyTicket(userId,ticketId);
   }else{
