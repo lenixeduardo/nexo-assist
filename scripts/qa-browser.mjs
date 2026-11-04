@@ -7,6 +7,9 @@ import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {setTimeout as sleep} from 'node:timers/promises';
+import {newConversation,saveMessage} from '../dist/postgres-db.js';
+import {execute} from '../dist/postgres.js';
+
 
 if (process.env.NODE_ENV !== 'test' ||
     process.env.NEXO_ISOLATED_TEST_DB !== 'true' ||
@@ -39,6 +42,27 @@ async function send(page,message){
  await page.locator('#send-form textarea').fill(message);
  await page.locator('#send-form button[type=submit]').click();
  await page.waitForFunction(()=>{const b=document.querySelector('#send-form button[type=submit]');return !!b&&!b.disabled},{timeout:30000});
+}
+// Visual test fixtures live only in a fresh isolated PostgreSQL database.
+// They are real persisted conversations, never synthetic DOM data or production seeds.
+async function seedAnalystVisualQueue(){
+ const cases=[
+  {id:'u-carla',text:'Preciso de acesso ao SAP ainda hoje; minha conta não tem permissão.',reply:'Vou registrar o pedido e encaminhar para a equipe de suporte.',state:'WAITING_ANALYST'},
+  {id:'u-bruno',text:'Meu notebook está com acesso à rede, mas preciso falar com o suporte.',reply:'Entendi. Um analista poderá acompanhar o atendimento.',state:'WAITING_ANALYST'},
+  {id:'u-diego',text:'Tenho um incidente na estação de trabalho e preciso de ajuda.',reply:'Vou verificar os próximos passos do atendimento.',state:'WAITING_ANALYST'},
+  {id:'u-carla',text:'Meu Outlook não consegue sincronizar, podem me ajudar?',reply:'Encaminhei seu caso para a equipe de suporte.',state:'WAITING_ANALYST'},
+  {id:'u-bruno',text:'Preciso atualizar a permissão da pasta do projeto.',reply:'Um atendente já está verificando a solicitação.',state:'ANALYST_ACTIVE'},
+  {id:'u-diego',text:'Minha VPN caiu e preciso de ajuda agora.',reply:'Encaminhei sua solicitação a um atendente.',state:'WAITING_ANALYST'},
+ ];
+ for(const item of cases){
+  const c=await newConversation(item.id);
+  await saveMessage(c.id,'USER',item.text,item.id);
+  await saveMessage(c.id,'AGENT',item.reply);
+  await saveMessage(c.id,'USER','Quero falar com o suporte humano.',item.id);
+  const assignment=item.state==='ANALYST_ACTIVE'?'u-rafael':null;
+  await execute('UPDATE conversations SET state=?,assigned_analyst_id=?,version=version+1,updated_at=? WHERE id=?',item.state,assignment,new Date().toISOString(),c.id);
+ }
+ check('isolated queue fixtures persisted',true);
 }
 async function run(){
  server=spawn(process.execPath,['dist/server.js'],{
@@ -80,6 +104,8 @@ async function run(){
  check('ticket persisted through HTTP',ticketResponse.status===200&&ticketResponse.data.tickets.some(t=>t.title.includes('impressora')||t.title.includes('Impressora')));
  await page.locator('[data-new]').first().click();
  await page.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
+ await seedAnalystVisualQueue();
+ await sleep(20);
  await send(page,'Qual o status do chamado INC-20311?');
  await page.waitForFunction(()=>document.querySelector('.chat-state')?.textContent.includes('Aguardando analista'),{timeout:30000});
  check('human handoff suspends agent',true);
@@ -91,6 +117,8 @@ async function run(){
  analyst.on('pageerror',e=>report.errors.push(String(e)));
  await login(analyst,'rafael.lima@nexo.com.br');
  await analyst.locator('[data-action=assume]').first().waitFor({timeout:30000});
+ check('analyst shows multiple real queue conversations',(await analyst.locator('[data-select]').count())>=6);
+ check('analyst displays last-message previews',(await analyst.locator('.queue-preview').first().textContent()).trim().length>0);
  await capture(analyst,'04-analyst-queue');
  await analyst.locator('[data-action=assume]').first().click();
  await analyst.locator('#analyst-send').waitFor({timeout:30000});
