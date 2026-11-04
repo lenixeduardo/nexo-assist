@@ -385,3 +385,101 @@ h1,h2,h3{letter-spacing:normal}
 .ticket-status-grid strong{font-size:11.5px;font-weight:500;color:#374759;overflow-wrap:anywhere}
 @media(max-width:760px){.ticket-status-card{margin-left:0;padding:12px}.ticket-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:390px){.ticket-status-grid{grid-template-columns:1fr}}
+
+
+/* Pencil review pass v7: editorial scale, navigation, and source geometry. */
+.nexo-mark{display:block;width:25px;height:25px;color:inherit}
+.brand .brand-icon{background:transparent!important;box-shadow:none!important;border-radius:0;color:#0285f7;font-size:0;letter-spacing:0;padding:0;width:27px;height:27px}
+.login-showcase .brand .brand-icon{color:#fff}
+.sidebar{padding:17px 14px 12px}
+.sidebar-brand-line{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:14px}
+.sidebar .brand{padding:0 0 0 6px;font-weight:500;font-size:14px;letter-spacing:0;gap:8px}
+.sidebar .brand .brand-icon{width:25px;height:25px}
+.sidebar .brand .nexo-mark{width:22px;height:22px}
+.sidebar-new{border:1px solid transparent;background:transparent;color:#6d7c8d;border-radius:8px;padding:5px;display:grid;place-items:center}
+.sidebar-new:hover{border-color:#e6e8ec;background:#f6f7f9;color:#0062c4}
+.sidebar-new:focus-visible{outline:2px solid #0285f7;outline-offset:2px}
+.sidebar-new .ui-icon{width:17px;height:17px}
+.sidebar nav{display:grid;gap:3px}
+.sidebar nav .nav-item{margin:0;border-radius:7px;padding:8px 10px;font-weight:400;font-size:13px;color:#3d4656;gap:10px}
+.sidebar nav .nav-item.active{background:#eaf2fc;color:#0062c4;font-weight:500}
+.sidebar nav .nav-icon{width:16px}
+.sidebar nav .ui-icon{width:16px;height:16px}
+.sidebar .history-block{margin-top:17px;border-top:1px solid #f0f1f3;padding-top:10px}
+.sidebar .history-block summary{cursor:pointer;font-size:11px;color:#7c8795;padding:4px 8px;list-style-position:inside}
+.sidebar .history-block summary:hover{color:#0062c4}
+.sidebar .history-items{padding-top:7px;max-height:255px;overflow-y:auto}
+.sidebar .history-items .nav-item{font-weight:400;font-size:11px;padding:7px 8px}
+.sidebar .sidebar-user{padding:10px 5px 8px}
+.sidebar .sidebar-bottom .nav-item{font-size:12px;font-weight:400;margin:0;padding:6px 9px}
+.sidebar .identity strong{font-weight:500}
+.sidebar .avatar{font-weight:500}
+.workspace .chat-body .chat-column{width:100%;max-width:808px;gap:18px}
+.workspace .message{font-size:14px;font-weight:400}
+.workspace .message.user .bubble{font-weight:400;font-size:13.5px;line-height:1.45;padding:11px 15px;border-radius:12px 12px 4px 12px}
+.workspace .message-meta{display:flex;align-items:center;flex-wrap:wrap;column-gap:8px;row-gap:2px;margin:0 0 8px;max-width:100%}
+.workspace .message-meta .message-header{font-weight:400;color:#3d4656;white-space:nowrap;margin:0;font-size:12px;gap:0}
+.workspace .message-meta .tiny-n{display:none}
+.workspace .message-meta .trace-summary{display:flex;align-items:center;gap:7px;margin:0;flex:1;min-width:0}
+.workspace .trace-summary .trace-badge{display:inline-flex;align-items:center;color:#7a8592;background:none;border:0;padding:0;font-size:11px;line-height:1.35;font-weight:400}
+.workspace .trace-summary .trace-badge:before{content:'';width:6px;height:6px;display:inline-block;margin-right:5px;background:#8d97a5}
+.workspace .message-meta .trace-details{margin:0;border:0;background:transparent;padding:0;flex:0 0 auto}
+.workspace .trace-details summary{font-size:10px;font-weight:400;color:#8b96a4;white-space:nowrap}
+.workspace .message-meta .trace-details[open]{flex-basis:100%;padding:7px 10px;border:1px solid #edf0f4;border-radius:8px;background:#fff}
+.workspace .message-meta .trace-details[open] summary{white-space:normal}
+.workspace .message.agent .bubble{font-size:14px;line-height:1.5}
+.workspace .message .msg-time{height:0;line-height:0;overflow:hidden;opacity:0;margin:0}
+.workspace .message:hover .msg-time,.workspace .message:focus-within .msg-time{height:auto;line-height:1.3;opacity:1;margin:4px 0 0;font-size:10px}
+.workspace .message.agent:has(.draft-card),.workspace .message.agent:has(.ticket-selection),.workspace .message.agent:has(.ticket-status-card){width:100%;max-width:100%;align-self:stretch}
+.workspace .message.agent:has(.draft-card) .card,.workspace .message.agent:has(.ticket-selection) .card,.workspace .message.agent:has(.ticket-status-card) .ticket-status-card{margin-left:0}
+.workspace .message.agent:has(.ticket-selection) .bubble{white-space:pre-line}
+.workspace .card.ticket-selection{padding:5px 14px 7px;border-color:#f0f2f4;border-radius:15px;box-shadow:0 6px 20px rgba(20,39,56,.035);background:#fff}
+.ticket-selection .ticket-choice{grid-template-columns:86px minmax(0,1fr) 140px 54px;gap:10px;padding:11px 8px;border-bottom:1px solid #f2f3f6}
+.ticket-selection .ticket-choice:last-child{border-bottom:0}
+.ticket-selection .ticket-choice:first-child{background:#f3f8fc}
+.ticket-selection .ticket-choice-state{display:flex;align-items:center;gap:6px;justify-self:start}
+.ticket-selection .ticket-choice-date{font:10.5px 'Schibsted Grotesk',sans-serif;color:#8993a1;justify-self:end;white-space:nowrap}
+.ticket-selection .ticket-choice-title{font-size:13px;font-weight:400}
+.ticket-selection .ticket-choice-id{font-size:11px}
+.workspace .card.draft-card{background:#fff;border:1px solid #eff1f4;border-radius:16px;box-shadow:0 4px 20px rgba(14,25,39,.04)}
+.draft-card-heading{background:#fff;padding:13px 16px 0}
+.draft-card-heading .label{font-size:12px!important;color:#677488;font-weight:400}
+.draft-heading-dot{padding:0 4px;color:#b8c0cc}
+.draft-card-heading .pill{background:transparent;color:#a26a0b;font-size:11px}
+.draft-card .draft-grid{gap:10px 14px;padding:10px 16px 14px}
+.draft-card .draft-grid .label{font-size:11px;font-weight:400;color:#667487}
+.draft-card .draft-grid .draft-title>span.label{display:none}
+.draft-card .draft-grid .draft-title strong{font-size:17px;font-weight:500;line-height:1.35}
+.draft-card .draft-grid .draft-title p{font-size:12px;color:#526174;line-height:1.5;margin-top:5px}
+.draft-card .draft-grid strong{font-weight:400;font-size:13px}
+.draft-card .draft-reason{background:#fff;font-size:10px;color:#7d8996;padding:6px 16px}
+.draft-card .draft-reason summary{cursor:pointer}
+.draft-card .draft-actions{padding:8px 10px;background:#f7f8fa;gap:6px}
+.draft-card .draft-actions .btn{border-radius:8px;font-size:12px;font-weight:500;min-height:34px}
+.ticket-status-card{margin-left:0;border-color:#eff1f4;padding:14px 16px;border-radius:16px;box-shadow:0 5px 18px rgba(13,23,39,.04)}
+.ticket-status-heading .ticket-id{font-family:'Schibsted Grotesk',sans-serif;font-size:12px;color:#687587}
+.ticket-status-title{font-size:17px;font-weight:500}
+.ticket-status-description{font-size:12.5px;line-height:1.5;color:#687486;white-space:pre-wrap}
+.ticket-status-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px;padding-top:10px}
+.ticket-status-grid strong{font-weight:400;font-size:12px}
+.profile-center{padding-top:50px}
+.profile-inner{max-width:600px}
+.profile-summary{border:0;box-shadow:0 4px 18px rgba(14,32,52,.04);border-radius:15px;padding:8px 24px}
+.profile-row{padding:16px 0}
+.profile-security{border:0;box-shadow:0 4px 18px rgba(14,32,52,.04);border-radius:15px;padding:17px 21px}
+.profile-security-help{margin:0;background:#f6f7f9;border-radius:0 0 14px 14px}
+@media(max-width:760px){
+ .sidebar{padding:16px 12px}
+ .sidebar-brand-line{margin-bottom:20px}
+ .workspace .message-meta{gap:4px}
+ .workspace .message-meta .trace-details{flex-basis:100%}
+ .workspace .message.agent:has(.ticket-selection) .bubble{white-space:pre-wrap}
+ .ticket-selection .ticket-choice{grid-template-columns:74px minmax(0,1fr);gap:5px 8px}
+ .ticket-selection .ticket-choice-state{grid-column:2;grid-row:2}
+ .ticket-selection .ticket-choice-date{grid-column:1;grid-row:2;justify-self:start}
+ .ticket-status-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .draft-card .draft-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .workspace .message .msg-time{height:auto;line-height:1.3;opacity:1;margin-top:4px}
+ .profile-center{padding:30px 15px}
+}
+@media(max-width:390px){.ticket-status-grid,.draft-card .draft-grid{grid-template-columns:minmax(0,1fr)}.draft-card .draft-title{grid-column:1}}
