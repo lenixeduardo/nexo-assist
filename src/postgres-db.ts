@@ -93,11 +93,40 @@ export async function confirmDraft(userId:string,id:string,version:number,idempo
   }
   let ticket:Ticket;const now=iso();
   if(draft.action==='CREATE'){
+   // Serialize duplicate detection and creation across different conversations/instances.
+   await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-ticket-create-'+userId);
    const duplicates=await findDuplicate(userId,draft.title+' '+draft.description,draft.category);
    const open=duplicates.find(t=>t.status!=='RESOLVIDO');if(open)throw new DomainError('POTENTIAL_DUPLICATE',`Já existe um chamado semelhante: ${open.id}. Atualize o existente.`,409);
    await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-ticket-sequence-'+draft.type);
-   const number=(await one<{n:number}>('SELECT count(*)::int n FROM tickets WHERE type=?',draft.type))!.n+20520;
-   const ticketId=`${draft.type}-${number}`;
+   // COUNT(*) can reuse a previous ID after deletions; always advance above the largest real suffix.
+   const next=await one<{n:string}>("SELECT (GREATEST(COALESCE(MAX(split_part(id,'-',2)::bigint),0),20520)+1)::text AS n FROM tickets WHERE type=? AND id ~ '^[A-Z]+-[0-9]{1,15}
+   await execute("INSERT INTO tickets(id,owner_user_id,title,description,type,category,priority,affected,status,opened_at,last_updated_at,resolved_at,version) VALUES(?,?,?,?,?,?,?,?,'ABERTO',?,?,NULL,1)",ticketId,userId,draft.title,draft.description,draft.type,draft.category,draft.priority,draft.affected,now,now);
+   ticket=await getMyTicket(userId,ticketId);
+  }else{
+   if(!draft.ticket_id)throw new DomainError('INVALID_INPUT','Chamado não identificado');
+   const t=await getMyTicket(userId,draft.ticket_id);
+   if(draft.action==='REOPEN'&&!canReopen(t))throw new DomainError('INVALID_TRANSITION','O período de reabertura expirou',409);
+   if(draft.action==='UPDATE'&&['RESOLVIDO','ENCERRADO'].includes(t.status))throw new DomainError('INVALID_TRANSITION','Chamado não permite atualização',409);
+   await execute('UPDATE tickets SET description=?,status=?,last_updated_at=?,resolved_at=?,version=version+1 WHERE id=?',`${t.description}\n\nAtualização: ${draft.description}`,draft.action==='REOPEN'?'ABERTO':t.status,now,draft.action==='REOPEN'?null:t.resolved_at,t.id);
+   ticket=await getMyTicket(userId,t.id);
+  }
+  await execute('INSERT INTO ticket_events(id,ticket_id,actor_id,type,content,created_at) VALUES(?,?,?,?,?,?)',randomUUID(),ticket.id,userId,draft.action,draft.description,now);
+  await execute("UPDATE drafts SET status='CONFIRMED',version=version+1 WHERE id=?",id);
+  const result={ticket,replay:false};
+  await execute('INSERT INTO idempotency_keys(key,owner_user_id,result_json) VALUES(?,?,?)',scopedKey,userId,JSON.stringify(result));
+  return result;
+ });
+}
+export async function handoff(conversationId:string,userId:string,reason:string,summary:string){return transaction(async()=>{await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-conversation-'+conversationId);const c=await getConversation(conversationId,userId);if(c.state!=='AGENT_ACTIVE')throw new DomainError('CONVERSATION_LOCKED','Conversa não está com o agente',409);await execute("UPDATE conversations SET state='WAITING_ANALYST',version=version+1,updated_at=? WHERE id=?",iso(),conversationId);const id=randomUUID();await execute('INSERT INTO handoffs(id,conversation_id,reason,summary,created_at) VALUES(?,?,?,?,?)',id,conversationId,reason,summary,iso());return {id,state:'WAITING_ANALYST',summary}})}
+export const analystQueue=()=>findAll<Conversation & {user_name:string;user_email:string}>("SELECT c.*,u.name user_name,u.email user_email FROM conversations c JOIN users u ON u.id=c.user_id WHERE c.state IN ('WAITING_ANALYST','ANALYST_ACTIVE') ORDER BY CASE c.state WHEN 'WAITING_ANALYST' THEN 0 ELSE 1 END,c.updated_at DESC LIMIT 100");
+export async function analystTransition(actorId:string,conversationId:string,action:'assume'|'return'|'close'){return transaction(async()=>{await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-conversation-'+conversationId);const c=await getConversation(conversationId);if(action==='assume'){if(c.state!=='WAITING_ANALYST')throw new DomainError('INVALID_TRANSITION','Conversa não está aguardando',409);await execute("UPDATE conversations SET state='ANALYST_ACTIVE',assigned_analyst_id=?,version=version+1,updated_at=? WHERE id=?",actorId,iso(),conversationId)}else{if(c.state!=='ANALYST_ACTIVE'||c.assigned_analyst_id!==actorId)throw new DomainError('UNAUTHORIZED','Atendimento não pertence ao analista',403);await execute('UPDATE conversations SET state=?,assigned_analyst_id=NULL,version=version+1,updated_at=? WHERE id=?',action==='return'?'AGENT_ACTIVE':'CLOSED',iso(),conversationId)}await saveMessage(conversationId,'SYSTEM',action==='assume'?'Analista assumiu o atendimento':action==='return'?'Atendimento devolvido ao agente':'Atendimento encerrado');return getConversation(conversationId)})}
+export async function analystSend(actorId:string,conversationId:string,text:string){return transaction(async()=>{await execute('SELECT pg_advisory_xact_lock(hashtext(?))','nexo-conversation-'+conversationId);const c=await getConversation(conversationId);if(c.state!=='ANALYST_ACTIVE'||c.assigned_analyst_id!==actorId)throw new DomainError('UNAUTHORIZED','Analista não está atendendo esta conversa',403);await saveMessage(conversationId,'ANALYST',text,actorId);return {ok:true}})}
+export async function claimConversation(conversationId:string,userId:string){return transaction(async()=>{await getConversation(conversationId,userId);const now=Date.now();await execute('DELETE FROM conversation_processing WHERE started_at<?',now-90000);const token=randomUUID();const added=await execute('INSERT INTO conversation_processing(conversation_id,token,started_at) VALUES(?,?,?) ON CONFLICT(conversation_id) DO NOTHING',conversationId,token,now);if(!added)throw new DomainError('CONVERSATION_BUSY','Esta conversa já está processando uma mensagem',409);return token})}
+export const releaseConversation=(id:string,token:string)=>execute('DELETE FROM conversation_processing WHERE conversation_id=? AND token=?',id,token);
+export async function ensureAnalystAccess(id:string){const c=await getConversation(id);if(!['WAITING_ANALYST','ANALYST_ACTIVE'].includes(c.state))throw new DomainError('UNAUTHORIZED','Conversa não disponível à equipe de atendimento',403);return c}
+",draft.type);
+   if(!next?.n)throw new Error('TICKET_SEQUENCE_ERROR');
+   const ticketId=`${draft.type}-${next.n}`;
    await execute("INSERT INTO tickets(id,owner_user_id,title,description,type,category,priority,affected,status,opened_at,last_updated_at,resolved_at,version) VALUES(?,?,?,?,?,?,?,?,'ABERTO',?,?,NULL,1)",ticketId,userId,draft.title,draft.description,draft.type,draft.category,draft.priority,draft.affected,now,now);
    ticket=await getMyTicket(userId,ticketId);
   }else{
