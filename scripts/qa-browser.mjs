@@ -150,6 +150,8 @@ async function run(){
  await analyst.locator('#analyst-send button[type=submit]').click();
  await analyst.getByText('Olá, Ana! Aqui é o Rafael. Vou analisar seu chamado e acompanhar o atendimento.').first().waitFor({timeout:30000});
  check('analyst sends real persisted message',true);
+ await analyst.waitForFunction(()=>{const chat=document.querySelector('#analyst-scroll');const b=[...document.querySelectorAll('#analyst-scroll .message .bubble')].find(x=>x.textContent?.includes('Olá, Ana! Aqui é o Rafael.'));const r=b?.getBoundingClientRect(),c=chat?.getBoundingClientRect();return !!r&&!!c&&r.top>=c.top&&r.bottom<=c.bottom},null,{timeout:12000});
+ check('last analyst message fully visible after re-render',true);
  await capture(analyst,'05-analyst-active');
  await analyst.locator('[data-action=return]').first().click();
  let returned=false,returnState='UNKNOWN';
