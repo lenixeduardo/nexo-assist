@@ -94,6 +94,8 @@ async function run(){
  await saveMessage(draftConv.id,'USER','Só eu. Tenho alternativa de usar outra impressora.','u-ana');
  await send(page,'Minha impressora está travando, só eu, tenho alternativa de usar outra impressora');
  await page.locator('[data-confirm]').first().waitFor({timeout:30000});
+ await page.waitForFunction(()=>{const b=document.querySelector('[data-confirm]'),r=b?.getBoundingClientRect();return !!r&&r.top>60&&r.bottom<innerHeight-85},null,{timeout:10000});
+ check('new draft confirmation controls visible after multi-turn conversation',true);
  await capture(page,'03-ticket-draft');
  await page.locator('[data-edit]').last().click();
  const editor=page.locator('[data-draft-edit-form]').last();
