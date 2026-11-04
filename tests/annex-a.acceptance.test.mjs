@@ -75,8 +75,11 @@ test('A10: ticket identifiers advance above the largest existing ID',()=>scenari
  const result=await db.confirmDraft('u-ana',draft.id,draft.version,'unique-id-regression');
  assert.equal(result.ticket.id,'REQ-900002');
 }));
-test('A11: concurrent analyst assumptions do not both succeed',()=>scenario(async()=>{
- const {c}=await chat('Quero falar com um analista');
+test('A11: concurrent analyst assumptions across pooled connections do not both succeed',async()=>{
+ if(process.env.NEXO_ISOLATED_TEST_DB!=='true')throw Error('A11 requires disposable test database');
+ await db.seed();
+ const c=await db.newConversation('u-ana');
+ await db.handoff(c.id,'u-ana','USER_REQUEST','Verificar concorrência de atribuição');
  const attempts=await Promise.allSettled([
   db.analystTransition('u-rafael',c.id,'assume'),
   db.analystTransition('u-rafael',c.id,'assume')
@@ -84,4 +87,4 @@ test('A11: concurrent analyst assumptions do not both succeed',()=>scenario(asyn
  assert.equal(attempts.filter(x=>x.status==='fulfilled').length,1);
  assert.equal(attempts.filter(x=>x.status==='rejected').length,1);
  assert.equal((await db.getConversation(c.id)).state,'ANALYST_ACTIVE');
-}));
+});
