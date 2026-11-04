@@ -54,7 +54,11 @@ async function route(req:IncomingMessage,res:ServerResponse){await ensureReady()
  if(!p.startsWith('/api/'))return staticFile(req,res,p);
  const u=await actor(req);limit(u);
  if(p==='/api/me'&&method==='GET')return json(res,{user:u});
- if(p==='/api/demo/users'&&method==='GET')return json(res,{users:(await listUsers()).map(({id,name,email,role,department})=>({id,name,email,role,department}))});
+ if(p==='/api/demo/users'&&method==='GET'){
+  // Demo identities are never enumerated in production or without an explicit demo opt-in.
+  if(process.env.NODE_ENV==='production'||process.env.APP_DEMO_LOGIN!=='true')throw new DomainError('NOT_FOUND','Rota não encontrada',404);
+  return json(res,{users:(await listUsers()).map(({id,name,email,role,department})=>({id,name,email,role,department}))});
+ }
  if(p==='/api/conversations'&&method==='GET')return json(res,{conversations:u.role==='ANALYST'?await analystQueue():await conversationsFor(u.id)});
  if(p==='/api/conversations'&&method==='POST'){if(u.role!=='EMPLOYEE')throw new DomainError('UNAUTHORIZED','Somente funcionários iniciam conversas',403);return json(res,{conversation:await newConversation(u.id)},201)}
  let m=p.match(/^\/api\/conversations\/([^/]+)$/);
