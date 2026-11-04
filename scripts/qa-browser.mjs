@@ -99,8 +99,17 @@ async function run(){
  await analyst.getByText('Chamado recebido pela equipe de TI em ambiente de testes.').first().waitFor({timeout:30000});
  check('analyst sends real persisted message',true);
  await analyst.locator('[data-action=return]').first().click();
- await analyst.waitForFunction(()=>!document.querySelector('[data-action=return]'),{timeout:30000});
- check('analyst returns to agent',true);
+ let returned=false,returnState='UNKNOWN';
+ for(let i=0;i<60;i++){
+  returnState=await page.evaluate(async id=>{
+   const r=await fetch('/api/conversations/'+id);
+   if(!r.ok)return 'HTTP_'+r.status;
+   return (await r.json()).conversation.state;
+  },userConversation.id);
+  if(returnState==='AGENT_ACTIVE'){returned=true;break;}
+  await sleep(300);
+ }
+ check('analyst returns to agent in persisted conversation',returned,returnState);
  await ac.close();
  await context.close();
  for(const width of [375,390,768]){
