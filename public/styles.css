@@ -352,3 +352,22 @@ h1,h2,h3{letter-spacing:normal}
 .queue-avatar.tone-3{background:#def3e8;color:#208766}
 .queue-avatar.tone-4{background:#f8e0e8;color:#b45f81}
 .queue-avatar.tone-5{background:#fff0cd;color:#996d18}
+
+
+/* Geometry refinement after Chromium/Pencil side-by-side review. */
+@media(min-width:761px){
+ .queue-head{padding-top:14px;padding-bottom:8px}
+ .queue-search-field{margin-top:12px}
+ .queue-search-field .search-input{height:35px}
+ .queue-filters{margin-top:8px}
+ .profile-center{padding-top:68px}
+ .profile-inner{max-width:574px}
+ .profile-summary{margin-top:22px;padding-block:4px}
+ .profile-row{padding:10px 0}
+ .profile-security{margin-top:18px}
+}
+.workspace .topbar .flex>div:not(.avatar){display:flex;align-items:center;gap:9px}
+.workspace .topbar .eyebrow{color:#738092;font-size:11.5px;letter-spacing:0;font-weight:400;text-transform:none}
+.workspace .topbar strong{color:#1b2431;font-size:12.5px;font-weight:500}
+.workspace .topbar .flex>div:not(.avatar) .eyebrow:after{content:' /';margin-left:6px;color:#a9b1bc}
+@media(max-width:760px){.workspace .topbar .flex>div:not(.avatar){display:block}.workspace .topbar .flex>div:not(.avatar) .eyebrow:after{content:none}.queue-head{padding:14px 12px}.queue-search-field{margin-top:12px}.queue-filters{margin-top:8px}}
