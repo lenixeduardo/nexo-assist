@@ -80,9 +80,10 @@ async function run(){
  check('ticket persisted through HTTP',ticketResponse.status===200&&ticketResponse.data.tickets.some(t=>t.title.includes('impressora')||t.title.includes('Impressora')));
  await page.locator('[data-new]').first().click();
  await page.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
- await send(page,'Quero falar com um analista');
+ await send(page,'Qual o status do chamado INC-20311?');
  await page.waitForFunction(()=>document.querySelector('.chat-state')?.textContent.includes('Aguardando analista'),{timeout:30000});
  check('human handoff suspends agent',true);
+ await capture(page,'03-ticket-status');
  const userConversation=await page.evaluate(async()=>{const r=await fetch('/api/conversations');return (await r.json()).conversations[0]});
  check('handoff state persisted',userConversation.state==='WAITING_ANALYST');
  const ac=await browser.newContext({viewport:{width:1440,height:900}});
@@ -93,6 +94,7 @@ async function run(){
  await capture(analyst,'04-analyst-queue');
  await analyst.locator('[data-action=assume]').first().click();
  await analyst.locator('#analyst-send').waitFor({timeout:30000});
+ await analyst.setViewportSize({width:1567,height:900});
  await capture(analyst,'05-analyst-active');
  await analyst.locator('#analyst-send textarea').fill('Chamado recebido pela equipe de TI em ambiente de testes.');
  await analyst.locator('#analyst-send button[type=submit]').click();
