@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Nexo Assist - agent de service desk de TI",
   "engines": {
-    "node": ">=22.18.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "npm run build && npm run start",
@@ -18,7 +18,8 @@
     "smoke:mastra": "node --env-file=.env --disable-warning=ExperimentalWarning scripts/mastra-live-smoke.mjs",
     "test:e2e": "python tests/browser_e2e.py",
     "smoke:postgres": "node scripts/postgres-smoke.mjs",
-    "test:postgres": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs"
+    "test:postgres": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 tests/postgres.integration.test.mjs tests/postgres-http.integration.test.mjs",
+    "qa:syntax": "node --check public/app.js"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
