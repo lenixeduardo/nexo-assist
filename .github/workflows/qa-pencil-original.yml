@@ -1,0 +1,47 @@
+name: Nexo Pencil reference export for visual QA
+on:
+  push:
+    branches: ['fix/nexo-ticket-handoff-ui-a11y-20261104']
+    paths: ['.github/workflows/qa-pencil-original.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pencil-export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+      - run: npm install --no-save --no-audit --no-fund @open-pencil/cli
+      - name: Export six original Pencil frames
+        shell: bash
+        run: |
+          mkdir -p artifacts/pencil-qa
+          set +e
+          declare -a nodes=(bi8Au IcuoM vbsNW x2HBOE CAqx8 i4fCbC)
+          declare -a names=(01-login 02-ticket-draft 03-ticket-status 04-analyst-queue 05-analyst-active 06-profile)
+          for i in "${!nodes[@]}"; do
+            echo "EXPORT ${names[$i]} ${nodes[$i]}"
+            npx openpencil export docs/nexo.pen --node "${nodes[$i]}" -f png --font-policy warn -o "artifacts/pencil-qa/${names[$i]}.png"
+            echo "EXPORT_STATUS:${names[$i]}:$?"
+          done
+          python3 - <<'PY'
+          import json,pathlib
+          from PIL import Image
+          p=pathlib.Path("artifacts/pencil-qa")
+          entries=[]
+          for file in sorted(p.glob("*.png")):
+              with Image.open(file) as image:
+                  entries.append({"name":file.name,"size":list(image.size)})
+          print("ORIGINAL_EXPORTS="+json.dumps(entries))
+          (p/"export-manifest.json").write_text(json.dumps(entries,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nexo-original-pencil-frames
+          path: artifacts/pencil-qa/
+          if-no-files-found: warn
