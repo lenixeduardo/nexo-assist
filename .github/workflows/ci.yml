@@ -17,6 +17,6 @@ jobs:
       - run: npm run build
       - run: npm run typecheck
       - name: Domain policy regression tests
-        run: node --test tests/policy.test.mjs
+        run: node --test tests/policy.test.mjs tests/auth-session.test.mjs
       - name: PostgreSQL suite
         run: echo 'PostgreSQL integration and HTTP tests run in postgres-migration.yml with a real PostgreSQL 16 service.'
