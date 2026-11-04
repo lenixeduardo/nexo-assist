@@ -483,3 +483,13 @@ h1,h2,h3{letter-spacing:normal}
  .profile-center{padding:30px 15px}
 }
 @media(max-width:390px){.ticket-status-grid,.draft-card .draft-grid{grid-template-columns:minmax(0,1fr)}.draft-card .draft-title{grid-column:1}}
+
+
+/* Contextual triage without sacrificing free-text answers. */
+.workspace .agent-quick-choices{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.workspace .agent-choice{border:1px solid transparent;border-radius:7px;background:transparent;color:#3d4656;padding:7px 10px;font-size:12.5px;font-weight:400;line-height:1.2;min-height:32px}
+.workspace .agent-choice:first-child{background:#eaf2fc;color:#0069c7}
+.workspace .agent-choice:hover{background:#eaf2fc;border-color:#dce9fa}
+.workspace .agent-choice:focus-visible{outline:2px solid #0285f7;outline-offset:2px}
+.workspace .message.agent:has(.ticket-status-card) .bubble{margin:11px 0 0;padding:0;background:transparent;border:0;color:#3d4656;font-size:13.5px;line-height:1.55}
+@media(max-width:760px){.workspace .agent-quick-choices{gap:4px}.workspace .agent-choice{font-size:12px;min-height:40px}}
