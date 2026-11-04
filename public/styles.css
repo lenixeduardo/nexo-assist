@@ -493,3 +493,16 @@ h1,h2,h3{letter-spacing:normal}
 .workspace .agent-choice:focus-visible{outline:2px solid #0285f7;outline-offset:2px}
 .workspace .message.agent:has(.ticket-status-card) .bubble{margin:11px 0 0;padding:0;background:transparent;border:0;color:#3d4656;font-size:13.5px;line-height:1.55}
 @media(max-width:760px){.workspace .agent-quick-choices{gap:4px}.workspace .agent-choice{font-size:12px;min-height:40px}}
+
+
+/* Composer and conversation alignment against 1440x900 Pencil frame. */
+@media(min-width:761px){
+ .workspace>.chat-body .chat-column{min-height:100%;justify-content:flex-end}
+ .workspace>.chat-body{padding-bottom:8px}
+ .workspace>.composer-wrap{padding:12px 24px 13px;border:0;background:#fff}
+ .workspace .composer-inner{width:100%;max-width:808px}
+ .workspace .composer{border:0;box-shadow:none;border-radius:0;padding:0;gap:12px;background:transparent;align-items:center}
+ .workspace .composer textarea{padding:10px 0;background:transparent;min-height:38px}
+ .workspace .composer .btn{min-height:36px;padding:9px 14px;border-radius:7px}
+ .workspace .composer-meta{font-size:11px}
+}
