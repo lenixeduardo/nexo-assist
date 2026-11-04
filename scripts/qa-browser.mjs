@@ -86,6 +86,12 @@ async function run(){
  await page.locator('.profile-center').waitFor();
  await capture(page,'06-profile');
  await page.locator('[data-nav=chat]').click();
+ // The original Pencil chat contains prior turns; reproduce their density as
+ // actual records in the isolated database rather than adding screenshot-only DOM.
+ const draftConv=await page.evaluate(async()=>{const r=await fetch('/api/conversations');return (await r.json()).conversations[0]});
+ await saveMessage(draftConv.id,'USER','Minha impressora trava desde ontem, ao tentar imprimir relatórios.','u-ana');
+ await saveMessage(draftConv.id,'AGENT','Entendi. Quem está sendo afetado? Existe uma alternativa para continuar trabalhando?');
+ await saveMessage(draftConv.id,'USER','Só eu. Tenho alternativa de usar outra impressora.','u-ana');
  await send(page,'Minha impressora está travando, só eu, tenho alternativa de usar outra impressora');
  await page.locator('[data-confirm]').first().waitFor({timeout:30000});
  await capture(page,'03-ticket-draft');
@@ -104,8 +110,14 @@ async function run(){
  await page.locator('[data-new]').first().click();
  await page.locator('.empty-chat').waitFor({state:'visible',timeout:15000});
  await seedAnalystVisualQueue();
+ const statusConv=await page.evaluate(async()=>{const r=await fetch('/api/conversations');return (await r.json()).conversations[0]});
+ await saveMessage(statusConv.id,'USER','Qual o status dos meus chamados?','u-ana');
+ await saveMessage(statusConv.id,'AGENT','Você tem 3 chamados abertos. Sobre qual deles quer saber?');
+ await saveMessage(statusConv.id,'USER','INC-20311 · Notebook lento após atualização','u-ana');
+ await saveMessage(statusConv.id,'AGENT','Esse chamado está sem atualização há 5 dias, além do prazo previsto. Quer que eu chame um analista?');
+ await saveMessage(statusConv.id,'USER','Está parado há 5 dias.','u-ana');
  await sleep(20);
- await send(page,'Qual o status do chamado INC-20311?');
+ await send(page,'Quero falar com um analista.');
  await page.waitForFunction(()=>document.querySelector('.chat-state')?.textContent.includes('Aguardando analista'),{timeout:30000});
  check('human handoff suspends agent',true);
  await capture(page,'03-ticket-status');
@@ -118,6 +130,9 @@ async function run(){
  await analyst.locator('[data-action=assume]').first().waitFor({timeout:30000});
  check('analyst shows multiple real queue conversations',(await analyst.locator('[data-select]').count())>=6);
  check('analyst displays last-message previews',(await analyst.locator('.queue-preview').first().textContent()).trim().length>0);
+ check('analyst has colored avatar variants',(await analyst.locator('.queue-avatar[class*=tone-]').count())>=6);
+ await analyst.locator('.analyst-ticket-section').first().waitFor({timeout:15000});
+ check('analyst groups tickets mentioned in the conversation',await analyst.getByText('Desta conversa',{exact:true}).count()>=1);
  await capture(analyst,'04-analyst-queue');
  await analyst.locator('[data-action=assume]').first().click();
  await analyst.locator('#analyst-send').waitFor({timeout:30000});
